@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as MarketsRouteImport } from './routes/markets'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RewardsRouteImport } from './routes/rewards'
+import { Route as MarketsMarketIdRouteImport } from './routes/markets.$marketId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,37 +35,51 @@ const RewardsRoute = RewardsRouteImport.update({
   path: '/rewards',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MarketsMarketIdRoute = MarketsMarketIdRouteImport.update({
+  id: '/$marketId',
+  path: '/$marketId',
+  getParentRoute: () => MarketsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/markets': typeof MarketsRoute
+  '/markets': typeof MarketsRouteWithChildren
   '/profile': typeof ProfileRoute
   '/rewards': typeof RewardsRoute
+  '/markets/$marketId': typeof MarketsMarketIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/markets': typeof MarketsRoute
+  '/markets': typeof MarketsRouteWithChildren
   '/profile': typeof ProfileRoute
   '/rewards': typeof RewardsRoute
+  '/markets/$marketId': typeof MarketsMarketIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/markets': typeof MarketsRoute
+  '/markets': typeof MarketsRouteWithChildren
   '/profile': typeof ProfileRoute
   '/rewards': typeof RewardsRoute
+  '/markets/$marketId': typeof MarketsMarketIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/markets' | '/profile' | '/rewards'
+  fullPaths: '/' | '/markets' | '/profile' | '/rewards' | '/markets/$marketId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/markets' | '/profile' | '/rewards'
-  id: '__root__' | '/' | '/markets' | '/profile' | '/rewards'
+  to: '/' | '/markets' | '/profile' | '/rewards' | '/markets/$marketId'
+  id:
+    | '__root__'
+    | '/'
+    | '/markets'
+    | '/profile'
+    | '/rewards'
+    | '/markets/$marketId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  MarketsRoute: typeof MarketsRoute
+  MarketsRoute: typeof MarketsRouteWithChildren
   ProfileRoute: typeof ProfileRoute
   RewardsRoute: typeof RewardsRoute
 }
@@ -99,12 +114,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RewardsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/markets/$marketId': {
+      id: '/markets/$marketId'
+      path: '/$marketId'
+      fullPath: '/markets/$marketId'
+      preLoaderRoute: typeof MarketsMarketIdRouteImport
+      parentRoute: typeof MarketsRoute
+    }
   }
 }
 
+interface MarketsRouteChildren {
+  MarketsMarketIdRoute: typeof MarketsMarketIdRoute
+}
+
+const MarketsRouteChildren: MarketsRouteChildren = {
+  MarketsMarketIdRoute: MarketsMarketIdRoute,
+}
+
+const MarketsRouteWithChildren =
+  MarketsRoute._addFileChildren(MarketsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  MarketsRoute: MarketsRoute,
+  MarketsRoute: MarketsRouteWithChildren,
   ProfileRoute: ProfileRoute,
   RewardsRoute: RewardsRoute,
 }
