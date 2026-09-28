@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { queryOptions } from "@tanstack/react-query";
 
 export type CryptoMarketSnapshot = {
   bitcoin: {
@@ -88,4 +89,13 @@ export const getCryptoMarketSnapshot = createServerFn({ method: "GET" }).handler
     });
 
   return pendingRequest;
+});
+
+export const cryptoMarketQueryOptions = queryOptions({
+  queryKey: ["crypto-market-snapshot"],
+  queryFn: () => getCryptoMarketSnapshot(),
+  staleTime: CACHE_MS,
+  gcTime: 10 * CACHE_MS,
+  retry: 1,
+  refetchOnWindowFocus: false,
 });
