@@ -24,4 +24,8 @@ export type Market = {
   image?: string;
   featured?: boolean;
   trend?: "up" | "down" | "flat";
+  description: string;
+  source: string;
+  sourceUrl: string;
+  resolutionCriteria: string;
 };

@@ -2,9 +2,9 @@
 
 - [x] Phase 1: New application shell and primary navigation
 - [x] Phase 2: Prediction-market discovery home
-- [ ] Phase 3: Full market explorer
-- [ ] Phase 4: Production MarketCard interactions
-- [ ] Phase 5: Market detail
+- [x] Phase 3: Full market explorer
+- [x] Phase 4: Production MarketCard interactions
+- [x] Phase 5: Market detail
 - [ ] Phase 6: Server-authoritative TAC Points prediction flow
 - [ ] Phase 7: CoinGecko crypto data integration
 - [ ] Phase 8: News provider architecture

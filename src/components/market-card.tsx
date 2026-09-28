@@ -1,13 +1,13 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, Clock3, UsersRound } from "lucide-react";
+import { Clock3 } from "lucide-react";
 import { memo } from "react";
 import type { Market } from "@/domain/markets/types";
 import { cn } from "@/lib/utils";
 
 export const MarketCard = memo(function MarketCard({ market }: { market: Market }) {
   return (
-    <article className="market-card group flex h-full flex-col border-b border-border bg-card py-4 transition-colors sm:rounded-lg sm:border sm:p-4 sm:hover:border-primary/35 sm:hover:shadow-card">
-      <div className="flex gap-3">
+    <article className="group grid h-full grid-cols-[minmax(0,1fr)_auto] gap-x-3 border-b border-border bg-card py-4 transition-[border-color,box-shadow,transform] duration-200 sm:rounded-lg sm:border sm:p-4 sm:hover:-translate-y-0.5 sm:hover:border-primary/35 sm:hover:shadow-card">
+      <Link to="/markets/$marketId" params={{ marketId: market.id }} className="flex min-w-0 gap-3">
         {market.image ? (
           <img
             src={market.image}
@@ -15,32 +15,30 @@ export const MarketCard = memo(function MarketCard({ market }: { market: Market 
             width={912}
             height={912}
             loading="lazy"
-            className="size-14 shrink-0 rounded-md object-cover sm:size-16"
+            className="size-12 shrink-0 rounded-md object-cover sm:size-14"
           />
         ) : (
-          <div className="grid size-14 shrink-0 place-items-center rounded-md bg-category text-xl font-black text-category-foreground sm:size-16">
+          <div className="grid size-12 shrink-0 place-items-center rounded-md bg-category text-lg font-black text-category-foreground sm:size-14">
             {market.category.slice(0, 1)}
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <div className="mb-1 flex items-center gap-2">
-            <span className="text-[0.67rem] font-bold uppercase text-primary">{market.category}</span>
-            {market.trend === "up" && <ArrowUpRight className="size-3.5 text-positive" aria-label="Trending up" />}
-          </div>
-          <Link
-            to="/markets"
-            className="line-clamp-2 text-[0.94rem] font-bold leading-snug transition-colors hover:text-primary sm:text-base"
-          >
-            {market.title}
-          </Link>
+          <span className="text-[0.65rem] font-extrabold uppercase text-primary">{market.category}</span>
+          <h3 className="mt-1 line-clamp-2 text-[0.9rem] font-bold leading-snug transition-colors group-hover:text-primary sm:text-[0.94rem]">{market.title}</h3>
         </div>
-      </div>
+      </Link>
+      <Link to="/markets/$marketId" params={{ marketId: market.id }} className="shrink-0 text-right">
+        <span className="block text-xl font-black tabular-nums">{market.outcomes[0]?.probability ?? 0}%</span>
+        <span className="text-[0.65rem] font-semibold text-muted-foreground">chance</span>
+      </Link>
 
-      <div className={cn("mt-4 grid gap-2", market.outcomes.length > 2 ? "grid-cols-3" : "grid-cols-2")}>
+      <div className={cn("col-span-2 mt-3 grid gap-2", market.outcomes.length > 2 ? "grid-cols-3" : "grid-cols-2")}>
         {market.outcomes.slice(0, 3).map((outcome, index) => (
           <Link
             key={outcome.id}
-            to="/markets"
+            to="/markets/$marketId"
+            params={{ marketId: market.id }}
+            search={{ outcome: outcome.id }}
             className={cn(
               "flex min-h-9 items-center justify-between rounded-md border px-2.5 text-xs font-bold transition-transform active:scale-[0.98]",
               index === 0
@@ -54,10 +52,10 @@ export const MarketCard = memo(function MarketCard({ market }: { market: Market 
         ))}
       </div>
 
-      <div className="mt-3 flex items-center gap-3 text-[0.68rem] font-medium text-muted-foreground">
+      <div className="col-span-2 mt-3 flex min-w-0 items-center gap-3 text-[0.68rem] font-medium text-muted-foreground">
         <span className="inline-flex items-center gap-1"><Clock3 className="size-3.5" /> {market.closesAt}</span>
-        <span className="inline-flex items-center gap-1"><UsersRound className="size-3.5" /> {market.participants.toLocaleString()}</span>
-        <span className="ml-auto tabular-nums">{market.volume}</span>
+        <span className="truncate">{market.participants.toLocaleString()} predictors</span>
+        <span className="ml-auto shrink-0 tabular-nums">{market.volume}</span>
       </div>
     </article>
   );
