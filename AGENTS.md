@@ -8,3 +8,9 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+## Architecture decisions
+
+- The public product uses a shared prediction-first shell with Home, Markets, Rewards, and Profile because legacy features must not define primary navigation.
+- Market data contracts live under `src/domain/markets` because all categories and binary or multi-outcome markets share one category-independent model.
+- External market-price credentials and requests must stay behind server functions because provider keys cannot ship to browsers.
