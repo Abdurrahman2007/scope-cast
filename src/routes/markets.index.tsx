@@ -7,10 +7,10 @@ const sortOptions = ["Trending", "Most active", "Ending soon", "New"] as const;
 type SortOption = (typeof sortOptions)[number];
 
 export const Route = createFileRoute("/markets/")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    category: typeof search["category"] === "string" ? search["category"] : "All",
-    sort: sortOptions.includes(search["sort"] as SortOption) ? (search["sort"] as SortOption) : "Trending",
-    q: typeof search["q"] === "string" ? search["q"] : "",
+  validateSearch: (search: Record<string, unknown>): { category?: string; sort?: SortOption; q?: string } => ({
+    ...(typeof search["category"] === "string" ? { category: search["category"] } : {}),
+    ...(sortOptions.includes(search["sort"] as SortOption) ? { sort: search["sort"] as SortOption } : {}),
+    ...(typeof search["q"] === "string" ? { q: search["q"] } : {}),
   }),
   head: () => ({
     meta: [
@@ -28,9 +28,12 @@ export const Route = createFileRoute("/markets/")({
 function MarketsPage() {
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/markets/" });
+  const category = search.category ?? "All";
+  const sort = search.sort ?? "Trending";
+  const query = search.q ?? "";
   const filtered = markets.filter((market) => {
-    const categoryMatches = search.category === "All" || market.category === search.category;
-    const queryMatches = market.title.toLowerCase().includes(search.q.toLowerCase());
+    const categoryMatches = category === "All" || market.category === category;
+    const queryMatches = market.title.toLowerCase().includes(query.toLowerCase());
     return categoryMatches && queryMatches;
   });
 
@@ -44,7 +47,7 @@ function MarketsPage() {
       <label className="mt-5 flex h-11 items-center gap-2 rounded-md border border-input bg-card px-3 transition-shadow focus-within:ring-2 focus-within:ring-ring/30">
         <Search className="size-4 shrink-0 text-muted-foreground" />
         <input
-          value={search.q}
+          value={query}
           onChange={(event) => navigate({ search: (previous) => ({ ...previous, q: event.target.value }), replace: true })}
           className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           placeholder="Search markets"
@@ -55,13 +58,13 @@ function MarketsPage() {
 
       <div className="scrollbar-none -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
         {categories.map((category) => (
-          <Link key={category} to="/markets" search={(previous) => ({ ...previous, category })} className={search.category === category ? "filter-chip-active" : "filter-chip"}>{category}</Link>
+          <Link key={category} to="/markets" search={(previous) => ({ ...previous, category })} className={search.category === category || (category === "All" && !search.category) ? "filter-chip-active" : "filter-chip"}>{category}</Link>
         ))}
       </div>
 
       <div className="scrollbar-none -mx-4 mt-3 flex gap-5 overflow-x-auto border-b border-border px-4 sm:mx-0 sm:px-0">
         {sortOptions.map((sort) => (
-          <Link key={sort} to="/markets" search={(previous) => ({ ...previous, sort })} className={search.sort === sort ? "market-tab-active" : "market-tab"}>{sort}</Link>
+          <Link key={sort} to="/markets" search={(previous) => ({ ...previous, sort })} className={search.sort === sort || (sort === "Trending" && !search.sort) ? "market-tab-active" : "market-tab"}>{sort}</Link>
         ))}
       </div>
 

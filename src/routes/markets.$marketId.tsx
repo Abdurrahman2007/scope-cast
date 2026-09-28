@@ -6,7 +6,8 @@ import { markets } from "@/domain/markets/demo-markets";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/markets/$marketId")({
-  validateSearch: (search: Record<string, unknown>) => ({ outcome: typeof search.outcome === "string" ? search.outcome : "" }),
+  validateSearch: (search: Record<string, unknown>): { outcome?: string } =>
+    typeof search["outcome"] === "string" ? { outcome: search["outcome"] } : {},
   head: () => ({ meta: [
     { title: "Market — TacPredict" },
     { name: "description", content: "Review market odds and make a prediction using TAC Points." },

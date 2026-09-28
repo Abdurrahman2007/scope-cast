@@ -8,7 +8,8 @@ const feeds = ["For you", "Trending", "Ending soon", "New"] as const;
 type Feed = (typeof feeds)[number];
 
 export const Route = createFileRoute("/")({
-  validateSearch: (search: Record<string, unknown>) => ({ feed: feeds.includes(search.feed as Feed) ? (search.feed as Feed) : "For you" }),
+  validateSearch: (search: Record<string, unknown>): { feed?: Feed } =>
+    feeds.includes(search["feed"] as Feed) ? { feed: search["feed"] as Feed } : {},
   head: () => ({ meta: [
     { title: "TacPredict — Prediction Markets" },
     { name: "description", content: "Discover prediction markets across crypto, sports, technology, news, and business. Predict with TAC Points." },
@@ -21,7 +22,7 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
-  const { feed } = Route.useSearch();
+  const { feed = "For you" } = Route.useSearch();
   const featured = markets[0];
   if (!featured) return null;
   const feedMarkets = feed === "Ending soon" ? markets.slice().reverse() : feed === "New" ? markets.slice(3) : feed === "Trending" ? markets.slice(1) : markets.slice(1, 5);
