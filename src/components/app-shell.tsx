@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { CircleUserRound, Gift, House, LineChart, Search } from "lucide-react";
 import type { ReactNode } from "react";
 import { BrandMark } from "./brand-mark";
@@ -12,8 +12,6 @@ const navItems = [
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const pathname = useRouterState({ select: (state) => state.location.pathname });
-
   return (
     <div className="min-h-dvh bg-background text-foreground">
       <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-xl">
@@ -60,19 +58,19 @@ export function AppShell({ children }: { children: ReactNode }) {
       >
         <div className="mx-auto grid max-w-md grid-cols-4">
           {navItems.map((item) => {
-            const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
             const Icon = item.icon;
             return (
               <Link
                 key={item.to}
                 to={item.to}
-                className="group flex min-h-12 flex-col items-center justify-center gap-1 text-[0.64rem] font-semibold text-muted-foreground transition-colors duration-200"
-                aria-current={active ? "page" : undefined}
+                className="group flex min-h-12 flex-col items-center justify-center gap-1 text-[0.64rem] font-semibold text-muted-foreground transition-colors duration-150"
+                activeProps={{ className: "text-foreground [&_.nav-icon]:text-primary" }}
+                activeOptions={{ exact: item.to === "/" }}
               >
-                <span className={active ? "text-primary" : "transition-colors group-hover:text-foreground"}>
-                  <Icon className="size-5" strokeWidth={active ? 2.5 : 2} />
+                <span className="nav-icon transition-colors group-hover:text-foreground">
+                  <Icon className="size-5" strokeWidth={2.25} />
                 </span>
-                <span className={active ? "text-foreground" : ""}>{item.label}</span>
+                <span>{item.label}</span>
               </Link>
             );
           })}

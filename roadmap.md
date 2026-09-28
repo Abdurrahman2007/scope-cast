@@ -15,3 +15,5 @@
 - [ ] Phase 13: Performance optimization
 - [ ] Phase 14: Full QA
 - [x] Apply selected compact dark dashboard visual system across the prediction app
+- [x] Add cached live CoinGecko prices and a real 24-hour Bitcoin chart to Home
+- [x] Reduce navigation transition latency and enable intent preloading
