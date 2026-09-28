@@ -14,3 +14,4 @@
 - The public product uses a shared prediction-first shell with Home, Markets, Rewards, and Profile because legacy features must not define primary navigation.
 - Market data contracts live under `src/domain/markets` because all categories and binary or multi-outcome markets share one category-independent model.
 - External market-price credentials and requests must stay behind server functions because provider keys cannot ship to browsers.
+- The visible product uses the compact World Graphite design system with Space Grotesk headings and DM Sans body text because mobile market scanning is the primary interaction.

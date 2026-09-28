@@ -38,63 +38,73 @@
   --color-featured-foreground: var(--featured-foreground);
   --color-featured-muted: var(--featured-muted);
   --color-surface-glass: var(--surface-glass);
+  --color-chart: var(--chart);
+  --color-chart-label: var(--chart-label);
+  --color-chart-label-foreground: var(--chart-label-foreground);
+  --color-bitcoin: var(--bitcoin);
   --shadow-brand: var(--shadow-brand);
   --shadow-card: var(--shadow-card);
   --shadow-featured: var(--shadow-featured);
 }
 
 :root {
-  --font-app: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+  --font-app: "DM Sans", sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
   --radius: 0.5rem;
-  --background: oklch(0.985 0.004 95);
-  --foreground: oklch(0.19 0.015 255);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.19 0.015 255);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.19 0.015 255);
-  --primary: oklch(0.71 0.18 159);
-  --primary-foreground: oklch(0.15 0.03 164);
-  --secondary: oklch(0.956 0.006 250);
-  --secondary-foreground: oklch(0.27 0.02 255);
-  --muted: oklch(0.956 0.006 250);
-  --muted-foreground: oklch(0.51 0.02 255);
-  --accent: oklch(0.94 0.025 159);
-  --accent-foreground: oklch(0.25 0.06 159);
-  --destructive: oklch(0.59 0.22 25);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.9 0.008 255);
-  --input: oklch(0.86 0.01 255);
-  --ring: oklch(0.64 0.17 159);
-  --positive: oklch(0.53 0.15 156);
-  --positive-soft: oklch(0.95 0.045 156);
-  --streak: oklch(0.62 0.19 42);
-  --streak-soft: oklch(0.95 0.045 54);
-  --category: oklch(0.92 0.025 245);
-  --category-foreground: oklch(0.35 0.08 245);
-  --featured: oklch(0.2 0.02 255);
-  --featured-foreground: oklch(0.99 0 0);
-  --featured-muted: oklch(0.86 0.012 255);
-  --surface-glass: oklch(0.2 0.015 255 / 0.72);
-  --featured-overlay: linear-gradient(90deg, oklch(0.14 0.02 255 / 0.94), oklch(0.16 0.02 255 / 0.6) 55%, oklch(0.16 0.02 255 / 0.1));
-  --shadow-brand: 0 8px 20px -8px oklch(0.61 0.16 159 / 0.55);
-  --shadow-card: 0 10px 30px -20px oklch(0.2 0.02 255 / 0.28);
-  --shadow-featured: 0 22px 55px -26px oklch(0.12 0.025 255 / 0.6);
+  --background: oklch(0.18 0.014 246);
+  --foreground: oklch(0.974 0.004 250);
+  --card: oklch(0.245 0.014 240);
+  --card-foreground: oklch(0.974 0.004 250);
+  --popover: oklch(0.245 0.014 240);
+  --popover-foreground: oklch(0.974 0.004 250);
+  --primary: oklch(0.79 0.16 151);
+  --primary-foreground: oklch(0.17 0.025 155);
+  --secondary: oklch(0.29 0.014 240);
+  --secondary-foreground: oklch(0.91 0.008 245);
+  --muted: oklch(0.27 0.012 240);
+  --muted-foreground: oklch(0.69 0.014 244);
+  --accent: oklch(0.32 0.02 241);
+  --accent-foreground: oklch(0.974 0.004 250);
+  --destructive: oklch(0.67 0.21 22);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.337 0.017 240);
+  --input: oklch(0.337 0.017 240);
+  --ring: oklch(0.79 0.16 151);
+  --positive: oklch(0.79 0.16 151);
+  --positive-soft: oklch(0.79 0.16 151 / 0.12);
+  --streak: oklch(0.79 0.16 151);
+  --streak-soft: oklch(0.79 0.16 151 / 0.12);
+  --category: oklch(0.31 0.03 246);
+  --category-foreground: oklch(0.83 0.06 241);
+  --featured: oklch(0.245 0.014 240);
+  --featured-foreground: oklch(0.974 0.004 250);
+  --featured-muted: oklch(0.69 0.014 244);
+  --surface-glass: oklch(0.245 0.014 240 / 0.88);
+  --chart: oklch(0.63 0.2 260);
+  --chart-label: oklch(0.82 0.018 235);
+  --chart-label-foreground: oklch(0.22 0.02 245);
+  --bitcoin: oklch(0.72 0.18 57);
+  --featured-overlay: linear-gradient(90deg, oklch(0.16 0.015 246 / 0.96), oklch(0.18 0.015 246 / 0.7) 58%, transparent);
+  --shadow-brand: 0 8px 24px -12px oklch(0.79 0.16 151 / 0.55);
+  --shadow-card: 0 18px 44px -30px oklch(0.02 0.01 245 / 0.9);
+  --shadow-featured: 0 22px 55px -26px oklch(0.02 0.01 245 / 0.9);
 }
 
 @layer base {
   * { border-color: var(--color-border); }
   html { background: var(--color-background); overscroll-behavior: none; }
   body { min-width: 320px; background-color: var(--color-background); color: var(--color-foreground); font-family: var(--font-app); letter-spacing: 0; overscroll-behavior: none; }
+  h1, h2, h3 { font-family: var(--font-display); letter-spacing: 0; }
   button, a, input { -webkit-tap-highlight-color: transparent; }
   ::selection { background: var(--color-accent); color: var(--color-accent-foreground); }
 }
 
 @layer components {
-  .page-title { @apply mt-1 text-[1.75rem] font-black leading-[1.08] sm:text-4xl; }
+  .page-title { @apply mt-1 text-[1.7rem] font-bold leading-[1.08] sm:text-4xl; }
   .section-title { @apply text-lg font-extrabold leading-tight; }
   .section-kicker { @apply text-[0.68rem] font-extrabold uppercase text-primary; }
-  .filter-chip { @apply shrink-0 rounded-md border border-border bg-card px-3.5 py-2 text-xs font-bold text-muted-foreground transition-colors hover:text-foreground; }
-  .filter-chip-active { @apply shrink-0 rounded-md bg-foreground px-3.5 py-2 text-xs font-bold text-background; }
+  .filter-chip { @apply shrink-0 rounded-full border border-border bg-card px-4 py-2 text-xs font-bold text-muted-foreground transition-colors duration-200 hover:text-foreground; }
+  .filter-chip-active { @apply shrink-0 rounded-full bg-foreground px-4 py-2 text-xs font-bold text-background; }
   .market-tab { @apply relative shrink-0 pb-3 text-sm font-bold text-muted-foreground transition-colors hover:text-foreground; }
   .market-tab-active { @apply relative shrink-0 pb-3 text-sm font-extrabold text-foreground after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:rounded-full after:bg-primary; }
   .featured-outcome-primary { @apply flex h-12 items-center justify-between rounded-md bg-primary px-4 text-sm font-extrabold text-primary-foreground transition-transform active:scale-[0.98]; }
