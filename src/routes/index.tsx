@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ChevronRight, Clock3, Flame, Search, TrendingUp } from "lucide-react";
+import { CalendarDays, ChevronRight, Clock3, Flame, Radio, Sparkles, TrendingUp } from "lucide-react";
 import { MarketCard } from "@/components/market-card";
+import { MarketSparkline } from "@/components/market-sparkline";
 import { Button } from "@/components/ui/button";
 import { categories, markets } from "@/domain/markets/demo-markets";
 
-const feeds = ["For you", "Trending", "Ending soon", "New"] as const;
+const feeds = ["Trending", "Live", "Upcoming", "New"] as const;
 type Feed = (typeof feeds)[number];
 
 export const Route = createFileRoute("/")({
@@ -22,42 +23,41 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
-  const { feed = "For you" } = Route.useSearch();
+  const { feed = "Trending" } = Route.useSearch();
   const featured = markets[0];
   if (!featured) return null;
-  const feedMarkets = feed === "Ending soon" ? markets.slice().reverse() : feed === "New" ? markets.slice(3) : feed === "Trending" ? markets.slice(1) : markets.slice(1, 5);
+  const feedMarkets = feed === "Upcoming" ? markets.slice().reverse() : feed === "New" ? markets.slice(3) : markets.slice(1, 5);
 
   return (
     <div className="animate-enter">
-      <section className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-        <div className="min-w-0"><p className="section-kicker">10,000 TAC available</p><h1 className="page-title truncate">Prediction markets</h1></div>
-        <Button variant="outline" size="icon" className="shrink-0" asChild><Link to="/markets" aria-label="Search markets"><Search /></Link></Button>
-      </section>
-
-      <div className="scrollbar-none -mx-4 mt-5 flex gap-5 overflow-x-auto border-b border-border px-4 sm:mx-0 sm:px-0">
-        {feeds.map((item) => <Link key={item} to="/" search={{ feed: item }} className={feed === item ? "market-tab-active" : "market-tab"}>{item}</Link>)}
+      <div className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 py-2 sm:mx-0 sm:px-0">
+        {feeds.map((item) => <Link key={item} to="/" search={{ feed: item }} className={feed === item ? "filter-chip-active" : "filter-chip"}>{item === "Trending" ? <Flame className="mr-1 inline size-3.5" /> : item === "Live" ? <Radio className="mr-1 inline size-3.5 text-primary" /> : item === "Upcoming" ? <CalendarDays className="mr-1 inline size-3.5" /> : <Sparkles className="mr-1 inline size-3.5" />}{item}</Link>)}
       </div>
 
-      <section className="mt-4 grid overflow-hidden rounded-lg border border-border bg-card shadow-card md:grid-cols-[1.15fr_0.85fr]">
-        <Link to="/markets/$marketId" params={{ marketId: featured.id }} className="relative min-h-40 overflow-hidden md:min-h-64">
-          <img src={featured.image} alt="Bitcoin market" width={1200} height={800} className="absolute inset-0 size-full object-cover transition-transform duration-500 hover:scale-[1.02]" />
-          <div className="absolute inset-0 bg-featured-overlay" />
-          <div className="relative flex h-full min-h-40 flex-col justify-between p-4 text-featured-foreground md:min-h-64 md:p-6">
-            <span className="w-fit rounded-md bg-surface-glass px-2 py-1 text-[0.65rem] font-extrabold uppercase">Featured · {featured.category}</span>
-            <h2 className="max-w-lg text-xl font-black leading-tight md:text-3xl">{featured.title}</h2>
+      <section className="mt-3 rounded-lg border border-border bg-card p-4 shadow-card md:grid md:grid-cols-[1fr_0.85fr] md:gap-6 md:p-6">
+        <div>
+          <div className="flex items-start justify-between gap-3">
+            <Link to="/markets/$marketId" params={{ marketId: featured.id }} className="flex min-w-0 items-start gap-3">
+              <span className="grid size-10 shrink-0 place-items-center rounded-full bg-bitcoin text-lg font-black text-foreground">₿</span>
+              <span className="min-w-0"><span className="block text-[0.65rem] font-bold uppercase text-muted-foreground">{featured.category} · Featured</span><h1 className="mt-1 text-base font-bold leading-tight sm:text-lg">{featured.title}</h1><span className="mt-1 block text-[0.68rem] text-muted-foreground">Closes in {featured.closesAt}</span></span>
+            </Link>
+            <span className="flex shrink-0 items-center gap-1.5 rounded-sm border border-positive/20 bg-positive-soft px-2 py-1 text-[0.62rem] font-bold text-positive"><span className="size-1.5 rounded-full bg-positive motion-safe:animate-pulse" /> LIVE</span>
           </div>
-        </Link>
-        <div className="flex flex-col justify-center border-t border-border p-4 md:border-l md:border-t-0 md:p-6">
-          <p className="text-xs font-bold text-muted-foreground">CURRENT CHANCE</p>
-          <p className="mt-1 text-4xl font-black tabular-nums">{featured.outcomes[0]?.probability}%</p>
-          <div className="mt-4 grid grid-cols-2 gap-2">
+          <div className="mt-5 grid grid-cols-2 gap-4">
+            <div><p className="text-[0.62rem] font-bold uppercase text-muted-foreground">Market target</p><p className="mt-1 text-lg font-bold tabular-nums">$120,000</p></div>
+            <div className="text-right"><p className="text-[0.62rem] font-bold uppercase text-chart">Current chance</p><p className="mt-1 text-lg font-bold text-chart tabular-nums">{featured.outcomes[0]?.probability}% <span className="text-xs text-positive">↑ 3%</span></p></div>
+          </div>
+          <div className="mt-4"><MarketSparkline /></div>
+        </div>
+        <div className="mt-4 flex flex-col justify-end border-t border-border pt-4 md:mt-0 md:border-l md:border-t-0 md:pl-6 md:pt-0">
+          <div className="grid grid-cols-2 gap-2">
             {featured.outcomes.map((outcome, index) => (
-              <Button key={outcome.id} variant={index === 0 ? "default" : "secondary"} asChild>
+              <Button key={outcome.id} variant={index === 0 ? "default" : "secondary"} className="h-11 justify-between" asChild>
                 <Link to="/markets/$marketId" params={{ marketId: featured.id }} search={{ outcome: outcome.id }}>{outcome.label} {outcome.probability}%</Link>
               </Button>
             ))}
           </div>
-          <div className="mt-4 flex items-center justify-between text-xs font-semibold text-muted-foreground"><span className="inline-flex items-center gap-1"><Clock3 className="size-3.5" /> {featured.closesAt}</span><span>{featured.volume}</span></div>
+          <div className="mt-3 flex items-center justify-between text-[0.68rem] font-semibold text-muted-foreground"><span className="inline-flex items-center gap-1"><Clock3 className="size-3.5" /> {featured.participants.toLocaleString()} predictors</span><span>{featured.volume}</span></div>
         </div>
       </section>
 
@@ -67,7 +67,7 @@ function HomePage() {
 
       <MarketSection title={feed} markets={feedMarkets} />
 
-      <section className="mt-8 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-border bg-card p-4">
+      <section className="mt-6 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-border bg-card p-4">
         <div className="grid size-10 shrink-0 place-items-center rounded-md bg-streak-soft text-streak"><Flame className="size-5" /></div>
         <div className="min-w-0"><p className="truncate font-extrabold">4-day check-in streak</p><p className="truncate text-sm text-muted-foreground">Claim 100 TAC Points today</p></div>
         <Button size="sm" className="shrink-0" asChild><Link to="/rewards">Claim</Link></Button>

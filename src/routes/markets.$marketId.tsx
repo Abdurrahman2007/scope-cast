@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Check, Clock3, ExternalLink, Info, UsersRound } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { MarketSparkline } from "@/components/market-sparkline";
 import { markets } from "@/domain/markets/demo-markets";
 import { cn } from "@/lib/utils";
 
@@ -34,13 +35,17 @@ function MarketDetailPage() {
   return (
     <div className="animate-enter mx-auto max-w-3xl">
       <Link to="/markets" className="inline-flex items-center gap-1 text-sm font-bold text-muted-foreground hover:text-foreground"><ArrowLeft className="size-4" /> Markets</Link>
-      <article className="mt-5">
+       <article className="mt-4">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-4">
           <div className="min-w-0"><p className="section-kicker">{market.category}</p><h1 className="mt-2 text-2xl font-black leading-tight sm:text-4xl">{market.title}</h1></div>
-          {market.image && <img src={market.image} alt="" width={912} height={912} className="size-16 shrink-0 rounded-lg object-cover sm:size-24" />}
+           <span className="grid size-12 shrink-0 place-items-center rounded-full bg-bitcoin text-xl font-black">{market.category === "Crypto" ? "₿" : market.category.slice(0, 1)}</span>
         </div>
         <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-muted-foreground"><span className="inline-flex items-center gap-1"><Clock3 className="size-4" /> Ends in {market.closesAt}</span><span className="inline-flex items-center gap-1"><UsersRound className="size-4" /> {market.participants.toLocaleString()} predictors</span><span>{market.volume} volume</span></div>
-        <p className="mt-6 text-sm leading-6 text-muted-foreground sm:text-base">{market.description}</p>
+         <p className="mt-5 text-sm leading-6 text-muted-foreground sm:text-base">{market.description}</p>
+         <div className="mt-5 rounded-lg border border-border bg-card p-4">
+           <div className="grid grid-cols-2 gap-4"><div><p className="text-[0.65rem] font-bold uppercase text-muted-foreground">Leading outcome</p><p className="mt-1 text-lg font-bold">{market.outcomes[0]?.label} {market.outcomes[0]?.probability}%</p></div><div className="text-right"><p className="text-[0.65rem] font-bold uppercase text-muted-foreground">Market volume</p><p className="mt-1 text-lg font-bold">{market.volume}</p></div></div>
+           <div className="mt-3"><MarketSparkline /></div>
+         </div>
       </article>
 
       <section className="mt-7 border-y border-border py-6">
