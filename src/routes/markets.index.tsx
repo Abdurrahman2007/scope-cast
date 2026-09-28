@@ -39,12 +39,12 @@ function MarketsPage() {
 
   return (
     <div className="animate-enter">
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4">
+       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4">
         <div className="min-w-0"><p className="section-kicker">Discover</p><h1 className="page-title truncate">Markets</h1></div>
         <span className="shrink-0 text-xs font-semibold text-muted-foreground">{filtered.length} live</span>
       </div>
 
-      <label className="mt-5 flex h-11 items-center gap-2 rounded-md border border-input bg-card px-3 transition-shadow focus-within:ring-2 focus-within:ring-ring/30">
+       <label className="mt-4 flex h-11 items-center gap-2 rounded-full border border-input bg-card px-4 transition-shadow focus-within:ring-2 focus-within:ring-ring/30">
         <Search className="size-4 shrink-0 text-muted-foreground" />
         <input
           value={query}
@@ -62,7 +62,7 @@ function MarketsPage() {
         ))}
       </div>
 
-      <div className="scrollbar-none -mx-4 mt-3 flex gap-5 overflow-x-auto border-b border-border px-4 sm:mx-0 sm:px-0">
+       <div className="scrollbar-none -mx-4 mt-3 flex gap-5 overflow-x-auto border-b border-border px-4 sm:mx-0 sm:px-0">
         {sortOptions.map((sort) => (
           <Link key={sort} to="/markets" search={(previous) => ({ ...previous, sort })} className={search.sort === sort || (sort === "Trending" && !search.sort) ? "market-tab-active" : "market-tab"}>{sort}</Link>
         ))}

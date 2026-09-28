@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 export const MarketCard = memo(function MarketCard({ market }: { market: Market }) {
   return (
-    <article className="group grid h-full grid-cols-[minmax(0,1fr)_auto] gap-x-3 border-b border-border bg-card py-4 transition-[border-color,box-shadow,transform] duration-200 sm:rounded-lg sm:border sm:p-4 sm:hover:-translate-y-0.5 sm:hover:border-primary/35 sm:hover:shadow-card">
+    <article className="group grid h-full grid-cols-[minmax(0,1fr)_auto] gap-x-3 border-b border-border bg-background py-4 transition-colors duration-200 sm:rounded-lg sm:border sm:bg-card sm:p-4 sm:hover:border-primary/35">
       <Link to="/markets/$marketId" params={{ marketId: market.id }} className="flex min-w-0 gap-3">
         {market.image ? (
           <img
@@ -15,20 +15,20 @@ export const MarketCard = memo(function MarketCard({ market }: { market: Market 
             width={912}
             height={912}
             loading="lazy"
-            className="size-12 shrink-0 rounded-md object-cover sm:size-14"
+            className="size-10 shrink-0 rounded-full object-cover sm:size-12"
           />
         ) : (
-          <div className="grid size-12 shrink-0 place-items-center rounded-md bg-category text-lg font-black text-category-foreground sm:size-14">
+          <div className="grid size-10 shrink-0 place-items-center rounded-full bg-category text-base font-black text-category-foreground sm:size-12">
             {market.category.slice(0, 1)}
           </div>
         )}
         <div className="min-w-0 flex-1">
           <span className="text-[0.65rem] font-extrabold uppercase text-primary">{market.category}</span>
-          <h3 className="mt-1 line-clamp-2 text-[0.9rem] font-bold leading-snug transition-colors group-hover:text-primary sm:text-[0.94rem]">{market.title}</h3>
+          <h3 className="mt-1 line-clamp-2 text-[0.88rem] font-bold leading-snug transition-colors group-hover:text-primary sm:text-[0.94rem]">{market.title}</h3>
         </div>
       </Link>
       <Link to="/markets/$marketId" params={{ marketId: market.id }} className="shrink-0 text-right">
-        <span className="block text-xl font-black tabular-nums">{market.outcomes[0]?.probability ?? 0}%</span>
+        <span className="block font-[var(--font-display)] text-lg font-bold tabular-nums">{market.outcomes[0]?.probability ?? 0}%</span>
         <span className="text-[0.65rem] font-semibold text-muted-foreground">chance</span>
       </Link>
 
@@ -40,7 +40,7 @@ export const MarketCard = memo(function MarketCard({ market }: { market: Market 
             params={{ marketId: market.id }}
             search={{ outcome: outcome.id }}
             className={cn(
-              "flex min-h-9 items-center justify-between rounded-md border px-2.5 text-xs font-bold transition-transform active:scale-[0.98]",
+              "flex min-h-9 items-center justify-between rounded-md border px-2.5 text-xs font-bold transition-all duration-200 active:scale-[0.98]",
               index === 0
                 ? "border-positive/20 bg-positive-soft text-positive hover:border-positive/40"
                 : "border-border bg-secondary text-secondary-foreground hover:border-foreground/20",
