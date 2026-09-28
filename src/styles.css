@@ -95,6 +95,8 @@
   .section-kicker { @apply text-[0.68rem] font-extrabold uppercase text-primary; }
   .filter-chip { @apply shrink-0 rounded-md border border-border bg-card px-3.5 py-2 text-xs font-bold text-muted-foreground transition-colors hover:text-foreground; }
   .filter-chip-active { @apply shrink-0 rounded-md bg-foreground px-3.5 py-2 text-xs font-bold text-background; }
+  .market-tab { @apply relative shrink-0 pb-3 text-sm font-bold text-muted-foreground transition-colors hover:text-foreground; }
+  .market-tab-active { @apply relative shrink-0 pb-3 text-sm font-extrabold text-foreground after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:rounded-full after:bg-primary; }
   .featured-outcome-primary { @apply flex h-12 items-center justify-between rounded-md bg-primary px-4 text-sm font-extrabold text-primary-foreground transition-transform active:scale-[0.98]; }
   .featured-outcome-secondary { @apply flex h-12 items-center justify-between rounded-md border border-featured-muted/25 bg-surface-glass px-4 text-sm font-extrabold text-featured-foreground backdrop-blur-md transition-transform active:scale-[0.98]; }
   .bg-featured-overlay { background: var(--featured-overlay); }
