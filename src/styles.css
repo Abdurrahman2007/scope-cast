@@ -83,8 +83,8 @@
 
 @layer base {
   * { border-color: var(--color-border); }
-  html { background: var(--color-background); }
-  body { min-width: 320px; background-color: var(--color-background); color: var(--color-foreground); font-family: var(--font-app); letter-spacing: 0; }
+  html { background: var(--color-background); overscroll-behavior: none; }
+  body { min-width: 320px; background-color: var(--color-background); color: var(--color-foreground); font-family: var(--font-app); letter-spacing: 0; overscroll-behavior: none; }
   button, a, input { -webkit-tap-highlight-color: transparent; }
   ::selection { background: var(--color-accent); color: var(--color-accent-foreground); }
 }

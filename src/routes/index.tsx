@@ -21,7 +21,7 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   const featured = markets[0];
   const trending = markets.slice(1, 4);
-  const endingSoon = [markets[2], markets[4]];
+  const endingSoon = markets.filter((market) => ["cricket-final", "rate-cut"].includes(market.id));
   if (!featured) return null;
 
   return (
