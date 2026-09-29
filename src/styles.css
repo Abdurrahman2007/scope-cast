@@ -42,6 +42,14 @@
   --color-chart-label: var(--chart-label);
   --color-chart-label-foreground: var(--chart-label-foreground);
   --color-bitcoin: var(--bitcoin);
+  --color-sport: var(--sport);
+  --color-sport-foreground: var(--sport-foreground);
+  --color-tech: var(--tech);
+  --color-tech-foreground: var(--tech-foreground);
+  --color-news: var(--news);
+  --color-news-foreground: var(--news-foreground);
+  --color-business: var(--business);
+  --color-business-foreground: var(--business-foreground);
   --shadow-brand: var(--shadow-brand);
   --shadow-card: var(--shadow-card);
   --shadow-featured: var(--shadow-featured);
@@ -84,6 +92,14 @@
   --chart-label: oklch(0.82 0.018 235);
   --chart-label-foreground: oklch(0.22 0.02 245);
   --bitcoin: oklch(0.72 0.18 57);
+  --sport: oklch(0.7 0.15 235 / 0.2);
+  --sport-foreground: oklch(0.81 0.12 235);
+  --tech: oklch(0.72 0.15 305 / 0.2);
+  --tech-foreground: oklch(0.84 0.12 305);
+  --news: oklch(0.76 0.14 85 / 0.2);
+  --news-foreground: oklch(0.86 0.12 85);
+  --business: oklch(0.7 0.08 200 / 0.2);
+  --business-foreground: oklch(0.84 0.08 200);
   --featured-overlay: linear-gradient(90deg, oklch(0.16 0.015 246 / 0.96), oklch(0.18 0.015 246 / 0.7) 58%, transparent);
   --shadow-brand: 0 8px 24px -12px oklch(0.79 0.16 151 / 0.55);
   --shadow-card: 0 18px 44px -30px oklch(0.02 0.01 245 / 0.9);
@@ -100,8 +116,8 @@
 }
 
 @layer components {
-  .page-title { @apply mt-1 text-[1.7rem] font-bold leading-[1.08] sm:text-4xl; }
-  .section-title { @apply text-lg font-extrabold leading-tight; }
+  .page-title { @apply mt-1 text-[2rem] font-bold leading-[1.08] sm:text-4xl; }
+  .section-title { @apply text-xl font-extrabold leading-tight; }
   .section-kicker { @apply text-[0.68rem] font-extrabold uppercase text-primary; }
   .filter-chip { @apply shrink-0 rounded-full border border-border bg-card px-4 py-2 text-xs font-bold text-muted-foreground transition-colors duration-200 hover:text-foreground; }
   .filter-chip-active { @apply shrink-0 rounded-full bg-foreground px-4 py-2 text-xs font-bold text-background; }
@@ -110,6 +126,8 @@
   .featured-outcome-primary { @apply flex h-12 items-center justify-between rounded-md bg-primary px-4 text-sm font-extrabold text-primary-foreground transition-transform active:scale-[0.98]; }
   .featured-outcome-secondary { @apply flex h-12 items-center justify-between rounded-md border border-featured-muted/25 bg-surface-glass px-4 text-sm font-extrabold text-featured-foreground backdrop-blur-md transition-transform active:scale-[0.98]; }
   .bg-featured-overlay { background: var(--featured-overlay); }
+  .market-icon { @apply grid size-12 shrink-0 place-items-center rounded-full text-xl shadow-sm sm:size-14; }
+  .market-icon svg { @apply size-5; }
 }
 
 @utility scrollbar-none {

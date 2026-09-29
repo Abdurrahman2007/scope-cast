@@ -3,6 +3,7 @@ import { CircleUserRound, Gift, House, LineChart, Search } from "lucide-react";
 import type { ReactNode } from "react";
 import { BrandMark } from "./brand-mark";
 import { Button } from "./ui/button";
+import { usePredictionWallet } from "@/lib/prediction-wallet";
 
 const navItems = [
   { to: "/" as const, label: "Home", icon: House },
@@ -12,13 +13,14 @@ const navItems = [
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const { balance } = usePredictionWallet();
   return (
     <div className="min-h-dvh bg-background text-foreground">
       <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-14 max-w-5xl items-center gap-3 px-4 sm:px-6">
+        <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:px-6">
           <Link to="/" className="flex min-w-0 items-center gap-2.5" aria-label="TacPredict home">
-            <BrandMark className="size-8" />
-            <span className="font-[var(--font-display)] text-[1.05rem] font-bold">TacPredict</span>
+            <BrandMark className="size-9" />
+            <span className="font-[var(--font-display)] text-[1.1rem] font-bold">TacPredict</span>
           </Link>
           <nav className="ml-8 hidden items-center gap-1 md:flex" aria-label="Main navigation">
             {navItems.map((item) => (
@@ -37,10 +39,10 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Button variant="ghost" size="icon" aria-label="Search markets" title="Search markets" asChild>
               <Link to="/markets"><Search /></Link>
             </Button>
-            <div className="flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5">
+            <Link to="/profile" className="flex items-center gap-2 rounded-full border border-border bg-card px-3 py-2 transition-colors hover:border-primary/40" aria-label={`${balance.toLocaleString()} TAC Points, open profile`}>
               <span className="size-1.5 rounded-full bg-primary motion-safe:animate-pulse" />
-              <p className="text-xs font-bold tabular-nums">10,000 <span className="text-muted-foreground">TAC</span></p>
-            </div>
+              <p className="text-xs font-bold tabular-nums">{balance.toLocaleString()} <span className="text-muted-foreground">TAC</span></p>
+            </Link>
             <Button variant="outline" size="icon" aria-label="Open profile" title="Open profile" asChild>
               <Link to="/profile"><CircleUserRound /></Link>
             </Button>
@@ -48,12 +50,12 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-5xl px-4 pb-28 pt-3 sm:px-6 md:pb-12 md:pt-6">
+      <main className="mx-auto w-full max-w-6xl px-4 pb-28 pt-3 sm:px-6 md:pb-12 md:pt-7">
         {children}
       </main>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-card/95 px-2 pb-[max(0.45rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl md:hidden"
+        className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-surface-glass px-2 pb-[max(0.55rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-2xl md:hidden"
         aria-label="Main navigation"
       >
         <div className="mx-auto grid max-w-md grid-cols-4">
@@ -63,7 +65,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link
                 key={item.to}
                 to={item.to}
-                className="group flex min-h-12 flex-col items-center justify-center gap-1 text-[0.64rem] font-semibold text-muted-foreground transition-colors duration-150"
+                className="group flex min-h-14 flex-col items-center justify-center gap-1 text-[0.66rem] font-semibold text-muted-foreground transition-colors duration-100 active:scale-95"
                 activeProps={{ className: "text-foreground [&_.nav-icon]:text-primary" }}
                 activeOptions={{ exact: item.to === "/" }}
               >

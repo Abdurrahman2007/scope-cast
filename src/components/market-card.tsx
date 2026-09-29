@@ -3,28 +3,16 @@ import { Clock3 } from "lucide-react";
 import { memo } from "react";
 import type { Market } from "@/domain/markets/types";
 import { cn } from "@/lib/utils";
+import { MarketIcon } from "./market-icon";
 
 export const MarketCard = memo(function MarketCard({ market }: { market: Market }) {
   return (
-    <article className="group grid h-full grid-cols-[minmax(0,1fr)_auto] gap-x-3 border-b border-border bg-background py-4 transition-colors duration-200 sm:rounded-lg sm:border sm:bg-card sm:p-4 sm:hover:border-primary/35">
+    <article className="group grid h-full grid-cols-[minmax(0,1fr)_auto] gap-x-3 border-b border-border bg-background py-5 transition-colors duration-150 sm:rounded-lg sm:border sm:bg-card sm:p-5 sm:hover:border-primary/35">
       <Link to="/markets/$marketId" params={{ marketId: market.id }} className="flex min-w-0 gap-3">
-        {market.image ? (
-          <img
-            src={market.image}
-            alt=""
-            width={912}
-            height={912}
-            loading="lazy"
-            className="size-10 shrink-0 rounded-full object-cover sm:size-12"
-          />
-        ) : (
-          <div className="grid size-10 shrink-0 place-items-center rounded-full bg-category text-base font-black text-category-foreground sm:size-12">
-            {market.category.slice(0, 1)}
-          </div>
-        )}
+        <MarketIcon market={market} />
         <div className="min-w-0 flex-1">
           <span className="text-[0.65rem] font-extrabold uppercase text-primary">{market.category}</span>
-          <h3 className="mt-1 line-clamp-2 text-[0.88rem] font-bold leading-snug transition-colors group-hover:text-primary sm:text-[0.94rem]">{market.title}</h3>
+          <h3 className="mt-1 line-clamp-2 text-[0.98rem] font-bold leading-snug transition-colors group-hover:text-primary sm:text-base">{market.title}</h3>
         </div>
       </Link>
       <Link to="/markets/$marketId" params={{ marketId: market.id }} className="shrink-0 text-right">
@@ -40,7 +28,7 @@ export const MarketCard = memo(function MarketCard({ market }: { market: Market 
             params={{ marketId: market.id }}
             search={{ outcome: outcome.id }}
             className={cn(
-              "flex min-h-9 items-center justify-between rounded-md border px-2.5 text-xs font-bold transition-all duration-200 active:scale-[0.98]",
+              "flex min-h-11 items-center justify-between rounded-md border px-3 text-sm font-bold transition-all duration-150 active:scale-[0.98]",
               index === 0
                 ? "border-positive/20 bg-positive-soft text-positive hover:border-positive/40"
                 : "border-border bg-secondary text-secondary-foreground hover:border-foreground/20",
