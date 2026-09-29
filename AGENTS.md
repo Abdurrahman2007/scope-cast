@@ -16,3 +16,4 @@
 - External market-price credentials and requests must stay behind server functions because provider keys cannot ship to browsers.
 - CoinGecko market snapshots use a shared server cache and request deduplication because live cards must not create duplicate provider calls.
 - The visible product uses the compact World Graphite design system with Space Grotesk headings and DM Sans body text because mobile market scanning is the primary interaction.
+- Prediction wallet state is accessed through one shared provider because balance and positions must remain consistent across shell, market, rewards, and profile screens.
