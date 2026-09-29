@@ -17,3 +17,6 @@
 - [x] Apply selected compact dark dashboard visual system across the prediction app
 - [x] Add cached live CoinGecko prices and a real 24-hour Bitcoin chart to Home
 - [x] Reduce navigation transition latency and enable intent preloading
+- [ ] Add persistent TAC balance deduction and prediction history across visible screens
+- [ ] Add crypto/sports market marks and iOS-style layout polish
+- [ ] Make visible Rewards and Profile actions functional
