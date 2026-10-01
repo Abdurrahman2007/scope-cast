@@ -65,7 +65,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link
                 key={item.to}
                 to={item.to}
-                className="group flex min-h-14 flex-col items-center justify-center gap-1 text-[0.66rem] font-semibold text-muted-foreground transition-colors duration-100 active:scale-95"
+                className="group ios-press flex min-h-14 flex-col items-center justify-center gap-1 text-[0.66rem] font-semibold text-muted-foreground"
                 activeProps={{ className: "text-foreground [&_.nav-icon]:text-primary" }}
                 activeOptions={{ exact: item.to === "/" }}
               >

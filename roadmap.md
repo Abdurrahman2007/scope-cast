@@ -6,7 +6,7 @@
 - [x] Phase 4: Production MarketCard interactions
 - [x] Phase 5: Market detail
 - [ ] Phase 6: Server-authoritative TAC Points prediction flow
-- [ ] Phase 7: CoinGecko crypto data integration
+- [x] Phase 7: CoinGecko crypto data integration
 - [ ] Phase 8: News provider architecture
 - [ ] Phase 9: Sports provider architecture
 - [ ] Phase 10: Complete Rewards
@@ -17,6 +17,7 @@
 - [x] Apply selected compact dark dashboard visual system across the prediction app
 - [x] Add cached live CoinGecko prices and a real 24-hour Bitcoin chart to Home
 - [x] Reduce navigation transition latency and enable intent preloading
-- [ ] Add persistent TAC balance deduction and prediction history across visible screens
-- [ ] Add crypto/sports market marks and iOS-style layout polish
-- [ ] Make visible Rewards and Profile actions functional
+- [x] Add persistent TAC balance deduction and prediction history across visible screens
+- [x] Add crypto/sports market marks and iOS-style layout polish
+- [x] Make visible Rewards and Profile actions functional
+- [x] Add cached read-only Polymarket live market discovery feed

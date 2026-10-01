@@ -7,7 +7,7 @@ import { MarketIcon } from "./market-icon";
 
 export const MarketCard = memo(function MarketCard({ market }: { market: Market }) {
   return (
-    <article className="group grid h-full grid-cols-[minmax(0,1fr)_auto] gap-x-3 border-b border-border bg-background py-5 transition-colors duration-150 sm:rounded-lg sm:border sm:bg-card sm:p-5 sm:hover:border-primary/35">
+    <article className="group ios-press grid h-full grid-cols-[minmax(0,1fr)_auto] gap-x-3 border-b border-border bg-background py-5 sm:rounded-lg sm:border sm:bg-card sm:p-5 sm:hover:border-primary/35">
       <Link to="/markets/$marketId" params={{ marketId: market.id }} className="flex min-w-0 gap-3">
         <MarketIcon market={market} />
         <div className="min-w-0 flex-1">
