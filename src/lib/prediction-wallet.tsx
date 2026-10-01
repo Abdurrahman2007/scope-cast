@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 export type PredictionPosition = {
   id: string;
@@ -43,6 +43,7 @@ function parseWallet(value: string | null): WalletState {
 export function PredictionWalletProvider({ children }: { children: ReactNode }) {
   const [wallet, setWallet] = useState(initialState);
   const [ready, setReady] = useState(false);
+  const entryLock = useRef(false);
 
   useEffect(() => {
     setWallet(parseWallet(window.localStorage.getItem(STORAGE_KEY)));
@@ -53,26 +54,29 @@ export function PredictionWalletProvider({ children }: { children: ReactNode }) 
     if (ready) window.localStorage.setItem(STORAGE_KEY, JSON.stringify(wallet));
   }, [ready, wallet]);
 
+  const enterMarket = useCallback((input: EntryInput): EntryResult => {
+    if (entryLock.current) return { ok: false, message: "Your previous entry is still processing." };
+    if (!Number.isFinite(input.amount) || input.amount < 10) return { ok: false, message: "Enter at least 10 TAC." };
+    if (input.amount > wallet.balance) return { ok: false, message: "You do not have enough TAC Points." };
+    entryLock.current = true;
+    const position: PredictionPosition = { ...input, id: crypto.randomUUID(), createdAt: new Date().toISOString(), status: "active" };
+    setWallet((current) => {
+      if (input.amount > current.balance) return current;
+      return { ...current, balance: current.balance - input.amount, positions: [position, ...current.positions] };
+    });
+    window.setTimeout(() => { entryLock.current = false; }, 500);
+    return { ok: true, position };
+  }, [wallet.balance]);
+
   const value = useMemo<WalletContextValue>(() => ({
     ...wallet,
-    enterMarket: (input) => {
-      if (!Number.isFinite(input.amount) || input.amount < 10) return { ok: false, message: "Enter at least 10 TAC." };
-      if (input.amount > wallet.balance) return { ok: false, message: "You do not have enough TAC Points." };
-      const position: PredictionPosition = {
-        ...input,
-        id: crypto.randomUUID(),
-        createdAt: new Date().toISOString(),
-        status: "active",
-      };
-      setWallet((current) => ({ ...current, balance: current.balance - input.amount, positions: [position, ...current.positions] }));
-      return { ok: true, position };
-    },
+    enterMarket,
     claimDailyReward: () => {
       if (wallet.claimedDailyReward) return false;
       setWallet((current) => ({ ...current, balance: current.balance + 100, claimedDailyReward: true }));
       return true;
     },
-  }), [wallet]);
+  }), [enterMarket, wallet]);
 
   return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;
 }

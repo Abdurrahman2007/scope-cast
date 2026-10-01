@@ -7,11 +7,11 @@ import { MarketIcon } from "./market-icon";
 
 export const MarketCard = memo(function MarketCard({ market }: { market: Market }) {
   return (
-    <article className="group grid h-full grid-cols-[minmax(0,1fr)_auto] gap-x-3 border-b border-border bg-background py-5 transition-colors duration-150 sm:rounded-lg sm:border sm:bg-card sm:p-5 sm:hover:border-primary/35">
+    <article className="group ios-press grid h-full grid-cols-[minmax(0,1fr)_auto] gap-x-3 border-b border-border bg-background py-5 sm:rounded-lg sm:border sm:bg-card sm:p-5 sm:hover:border-primary/35">
       <Link to="/markets/$marketId" params={{ marketId: market.id }} className="flex min-w-0 gap-3">
         <MarketIcon market={market} />
         <div className="min-w-0 flex-1">
-          <span className="text-[0.65rem] font-extrabold uppercase text-primary">{market.category}</span>
+          <span className="inline-flex items-center gap-1.5 text-[0.65rem] font-extrabold uppercase text-primary">{market.category}{market.source === "Polymarket" && <span className="rounded-full bg-positive-soft px-1.5 py-0.5 text-[0.55rem] text-positive">LIVE</span>}</span>
           <h3 className="mt-1 line-clamp-2 text-[0.98rem] font-bold leading-snug transition-colors group-hover:text-primary sm:text-base">{market.title}</h3>
         </div>
       </Link>
