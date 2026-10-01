@@ -6,6 +6,7 @@ import { MarketSparkline } from "@/components/market-sparkline";
 import { Button } from "@/components/ui/button";
 import { categories, markets } from "@/domain/markets/demo-markets";
 import { cryptoMarketQueryOptions } from "@/lib/market-data.functions";
+import { polymarketFeedQueryOptions } from "@/lib/polymarket.functions";
 
 const feeds = ["Trending", "Live", "Upcoming", "New"] as const;
 type Feed = (typeof feeds)[number];
@@ -21,7 +22,12 @@ export const Route = createFileRoute("/")({
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
   ] }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(cryptoMarketQueryOptions),
+  loader: ({ context }) => Promise.all([
+    context.queryClient.ensureQueryData(cryptoMarketQueryOptions),
+    context.queryClient.ensureQueryData(polymarketFeedQueryOptions),
+  ]),
+  errorComponent: ({ error }) => <div role="alert" className="py-16 text-center"><h1 className="page-title">Markets unavailable</h1><p className="mt-2 text-sm text-muted-foreground">{error.message}</p></div>,
+  notFoundComponent: () => <div className="py-16 text-center">No markets found.</div>,
   component: HomePage,
 });
 
@@ -31,9 +37,11 @@ const compactUsd = new Intl.NumberFormat("en-US", { style: "currency", currency:
 function HomePage() {
   const { feed = "Trending" } = Route.useSearch();
   const { data: crypto } = useSuspenseQuery(cryptoMarketQueryOptions);
+  const { data: polymarket } = useSuspenseQuery(polymarketFeedQueryOptions);
   const featured = markets[0];
   if (!featured) return null;
-  const feedMarkets = feed === "Upcoming" ? markets.slice().reverse() : feed === "New" ? markets.slice(3) : markets.slice(1, 5);
+  const liveMarkets = polymarket.markets.length > 0 ? polymarket.markets : markets.slice(1);
+  const feedMarkets = feed === "Upcoming" ? liveMarkets.slice().reverse().slice(0, 9) : feed === "New" ? liveMarkets.slice(-9).reverse() : liveMarkets.slice(0, 9);
 
   return (
     <div className="animate-enter">
@@ -93,6 +101,7 @@ function HomePage() {
       </section>
 
       <MarketSection title={feed} markets={feedMarkets} />
+      <p className="mt-3 text-center text-[0.65rem] font-semibold text-muted-foreground">Market odds and volume supplied by {polymarket.source} · refreshed {new Date(polymarket.updatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
 
       <section className="mt-6 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-border bg-card p-4">
         <div className="grid size-10 shrink-0 place-items-center rounded-md bg-streak-soft text-streak"><Flame className="size-5" /></div>
@@ -103,7 +112,7 @@ function HomePage() {
   );
 }
 
-function MarketSection({ title, markets: sectionMarkets }: { title: string; markets: typeof markets }) {
+function MarketSection({ title, markets: sectionMarkets }: { title: string; markets: import("@/domain/markets/types").Market[] }) {
   return (
     <section className="mt-7">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">

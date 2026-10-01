@@ -1,12 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Check, Clock3, ExternalLink, Info, ShieldCheck, UsersRound } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { MarketSparkline } from "@/components/market-sparkline";
 import { markets } from "@/domain/markets/demo-markets";
 import { cn } from "@/lib/utils";
 import { MarketIcon } from "@/components/market-icon";
 import { usePredictionWallet } from "@/lib/prediction-wallet";
+import { polymarketFeedQueryOptions } from "@/lib/polymarket.functions";
 
 export const Route = createFileRoute("/markets/$marketId")({
   validateSearch: (search: Record<string, unknown>): { outcome?: string } =>
@@ -19,13 +21,17 @@ export const Route = createFileRoute("/markets/$marketId")({
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
   ] }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(polymarketFeedQueryOptions),
+  errorComponent: ({ error }) => <div role="alert" className="py-16 text-center"><h1 className="page-title">Market unavailable</h1><p className="mt-2 text-sm text-muted-foreground">{error.message}</p></div>,
+  notFoundComponent: () => <div className="py-16 text-center">Market not found.</div>,
   component: MarketDetailPage,
 });
 
 function MarketDetailPage() {
   const { marketId } = Route.useParams();
   const { outcome: initialOutcome } = Route.useSearch();
-  const market = useMemo(() => markets.find((item) => item.id === marketId), [marketId]);
+  const { data: liveFeed } = useSuspenseQuery(polymarketFeedQueryOptions);
+  const market = useMemo(() => [...liveFeed.markets, ...markets].find((item) => item.id === marketId), [liveFeed.markets, marketId]);
   const [selectedOutcome, setSelectedOutcome] = useState(initialOutcome || market?.outcomes[0]?.id || "");
   const [amount, setAmount] = useState(100);
   const [message, setMessage] = useState("");

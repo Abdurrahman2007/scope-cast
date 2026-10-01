@@ -2,6 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { MarketCard } from "@/components/market-card";
 import { categories, markets } from "@/domain/markets/demo-markets";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { polymarketFeedQueryOptions } from "@/lib/polymarket.functions";
 
 const sortOptions = ["Trending", "Most active", "Ending soon", "New"] as const;
 type SortOption = (typeof sortOptions)[number];
@@ -22,6 +24,9 @@ export const Route = createFileRoute("/markets/")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(polymarketFeedQueryOptions),
+  errorComponent: ({ error }) => <div role="alert" className="py-16 text-center"><h1 className="page-title">Markets unavailable</h1><p className="mt-2 text-sm text-muted-foreground">{error.message}</p></div>,
+  notFoundComponent: () => <div className="py-16 text-center">No markets found.</div>,
   component: MarketsPage,
 });
 
@@ -31,17 +36,24 @@ function MarketsPage() {
   const category = search.category ?? "All";
   const sort = search.sort ?? "Trending";
   const query = search.q ?? "";
-  const filtered = markets.filter((market) => {
+  const { data: liveFeed } = useSuspenseQuery(polymarketFeedQueryOptions);
+  const allMarkets = liveFeed.markets.length > 0 ? liveFeed.markets : markets;
+  const filtered = allMarkets.filter((market) => {
     const categoryMatches = category === "All" || market.category === category;
     const queryMatches = market.title.toLowerCase().includes(query.toLowerCase());
     return categoryMatches && queryMatches;
+  }).sort((a, b) => {
+    if (sort === "Most active") return b.participants - a.participants;
+    if (sort === "Ending soon") return a.closesAt.localeCompare(b.closesAt, undefined, { numeric: true });
+    if (sort === "New") return b.id.localeCompare(a.id);
+    return (b.outcomes[0]?.probability ?? 0) - (a.outcomes[0]?.probability ?? 0);
   });
 
   return (
     <div className="animate-enter">
        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4">
         <div className="min-w-0"><p className="section-kicker">Discover</p><h1 className="page-title truncate">Markets</h1></div>
-        <span className="shrink-0 text-xs font-semibold text-muted-foreground">{filtered.length} live</span>
+        <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-semibold text-positive"><span className="size-1.5 rounded-full bg-positive motion-safe:animate-pulse" />{filtered.length} live</span>
       </div>
 
        <label className="mt-4 flex h-11 items-center gap-2 rounded-full border border-input bg-card px-4 transition-shadow focus-within:ring-2 focus-within:ring-ring/30">
@@ -75,6 +87,7 @@ function MarketsPage() {
       ) : (
         <div className="py-16 text-center"><p className="font-bold">No matching markets</p><p className="mt-1 text-sm text-muted-foreground">Try another search or category.</p></div>
       )}
+      <p className="mt-5 text-center text-[0.65rem] font-semibold text-muted-foreground">Live odds and volume from Polymarket · TAC Points only on TacPredict</p>
     </div>
   );
 }
