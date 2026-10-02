@@ -44,12 +44,10 @@ async function fetchCryptoMarketSnapshot(): Promise<CryptoMarketSnapshot> {
     fetch("https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1", { headers }),
   ]);
 
-  if (!priceResponse.ok || !chartResponse.ok) {
-    throw new Error(`CoinGecko request failed (${priceResponse.status}/${chartResponse.status})`);
-  }
+  if (!priceResponse.ok) throw new Error(`CoinGecko price request failed (${priceResponse.status})`);
 
   const prices = (await priceResponse.json()) as CoinGeckoPriceResponse;
-  const chart = (await chartResponse.json()) as CoinGeckoChartResponse;
+  const chart = chartResponse.ok ? (await chartResponse.json()) as CoinGeckoChartResponse : {};
   const history = (chart.prices ?? []).map((point) => point[1]).filter(Number.isFinite);
   const btc = prices["bitcoin"] ?? {};
 
@@ -96,6 +94,6 @@ export const cryptoMarketQueryOptions = queryOptions({
   queryFn: () => getCryptoMarketSnapshot(),
   staleTime: CACHE_MS,
   gcTime: 10 * CACHE_MS,
-  retry: 1,
+  retry: 0,
   refetchOnWindowFocus: false,
 });

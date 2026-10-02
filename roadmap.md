@@ -21,3 +21,5 @@
 - [x] Add crypto/sports market marks and iOS-style layout polish
 - [x] Make visible Rewards and Profile actions functional
 - [x] Add cached read-only Polymarket live market discovery feed
+- [x] Make CoinGecko chart failures non-blocking and enlarge mobile iOS-style controls
+- [x] Reduce page and press animation latency and defer off-screen market rendering
