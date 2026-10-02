@@ -22,7 +22,7 @@ export const Route = createFileRoute("/markets/$marketId")({
     { name: "twitter:card", content: "summary_large_image" },
   ] }),
   loader: ({ context }) => context.queryClient.ensureQueryData(polymarketFeedQueryOptions),
-  errorComponent: ({ error }) => <div role="alert" className="py-16 text-center"><h1 className="page-title">Market unavailable</h1><p className="mt-2 text-sm text-muted-foreground">{error.message}</p></div>,
+  errorComponent: ({ error }) => <div role="alert" className="py-16 text-center"><h1 className="page-title">Market unavailable</h1><p className="mt-2 text-sm text-muted-foreground">{error instanceof Error ? error.message : "Please try again."}</p></div>,
   notFoundComponent: () => <div className="py-16 text-center">Market not found.</div>,
   component: MarketDetailPage,
 });

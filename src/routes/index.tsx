@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { Activity, CalendarDays, ChevronRight, Clock3, Flame, Radio, Sparkles, TrendingUp } from "lucide-react";
 import { MarketCard } from "@/components/market-card";
 import { MarketSparkline } from "@/components/market-sparkline";
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/")({
     context.queryClient.ensureQueryData(cryptoMarketQueryOptions),
     context.queryClient.ensureQueryData(polymarketFeedQueryOptions),
   ]),
-  errorComponent: ({ error }) => <div role="alert" className="py-16 text-center"><h1 className="page-title">Markets unavailable</h1><p className="mt-2 text-sm text-muted-foreground">{error.message}</p></div>,
+  errorComponent: ({ error }) => <div role="alert" className="py-16 text-center"><h1 className="page-title">Markets unavailable</h1><p className="mt-2 text-sm text-muted-foreground">{error instanceof Error ? error.message : "Please try again."}</p></div>,
   notFoundComponent: () => <div className="py-16 text-center">No markets found.</div>,
   component: HomePage,
 });
@@ -40,33 +41,35 @@ function HomePage() {
   const { data: polymarket } = useSuspenseQuery(polymarketFeedQueryOptions);
   const featured = markets[0];
   if (!featured) return null;
-  const liveMarkets = polymarket.markets.length > 0 ? polymarket.markets : markets.slice(1);
-  const feedMarkets = feed === "Upcoming" ? liveMarkets.slice().reverse().slice(0, 9) : feed === "New" ? liveMarkets.slice(-9).reverse() : liveMarkets.slice(0, 9);
+  const feedMarkets = useMemo(() => {
+    const liveMarkets = polymarket.markets.length > 0 ? polymarket.markets : markets.slice(1);
+    return feed === "Upcoming" ? liveMarkets.slice().reverse().slice(0, 9) : feed === "New" ? liveMarkets.slice(-9).reverse() : liveMarkets.slice(0, 9);
+  }, [feed, polymarket.markets]);
 
   return (
     <div className="animate-enter">
-      <div className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 py-2 sm:mx-0 sm:px-0">
+      <div className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 py-2.5 sm:mx-0 sm:px-0">
         {feeds.map((item) => <Link key={item} to="/" search={{ feed: item }} className={feed === item ? "filter-chip-active" : "filter-chip"}>{item === "Trending" ? <Flame className="mr-1 inline size-3.5" /> : item === "Live" ? <Radio className="mr-1 inline size-3.5 text-primary" /> : item === "Upcoming" ? <CalendarDays className="mr-1 inline size-3.5" /> : <Sparkles className="mr-1 inline size-3.5" />}{item}</Link>)}
       </div>
 
       <section className="mt-3 overflow-hidden rounded-lg border border-border bg-card shadow-card md:grid md:grid-cols-[1.15fr_0.85fr]">
-        <div className="border-b border-border px-4 py-3 md:col-span-2 md:px-5">
+        <div className="border-b border-border px-5 py-4 md:col-span-2">
           <div className="flex items-center justify-between gap-3">
             <p className="inline-flex items-center gap-2 text-[0.68rem] font-extrabold uppercase text-muted-foreground"><Activity className="size-3.5 text-positive" /> Live crypto event</p>
             <p className="text-[0.65rem] font-semibold text-muted-foreground">CoinGecko · updated {new Date(crypto.updatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
           </div>
         </div>
-        <div className="p-4 md:p-5">
+        <div className="p-5 md:p-6">
           <div className="flex items-start justify-between gap-3">
             <Link to="/markets/$marketId" params={{ marketId: featured.id }} className="flex min-w-0 items-start gap-3">
-              <span className="grid size-10 shrink-0 place-items-center rounded-full bg-bitcoin text-lg font-black text-foreground">₿</span>
-              <span className="min-w-0"><span className="block text-[0.65rem] font-bold uppercase text-muted-foreground">{featured.category} · Featured</span><h1 className="mt-1 text-base font-bold leading-tight sm:text-lg">{featured.title}</h1><span className="mt-1 block text-[0.68rem] text-muted-foreground">Closes in {featured.closesAt}</span></span>
+              <span className="grid size-12 shrink-0 place-items-center rounded-full bg-bitcoin text-xl font-black text-foreground">₿</span>
+              <span className="min-w-0"><span className="block text-[0.68rem] font-bold uppercase text-muted-foreground">{featured.category} · Featured</span><h1 className="mt-1.5 text-lg font-bold leading-tight sm:text-xl">{featured.title}</h1><span className="mt-1.5 block text-xs text-muted-foreground">Closes in {featured.closesAt}</span></span>
             </Link>
             <span className="flex shrink-0 items-center gap-1.5 rounded-sm border border-positive/20 bg-positive-soft px-2 py-1 text-[0.62rem] font-bold text-positive"><span className="size-1.5 rounded-full bg-positive" /> OPEN</span>
           </div>
-          <div className="mt-5 grid grid-cols-2 gap-4">
-            <div><p className="text-[0.62rem] font-bold uppercase text-muted-foreground">Bitcoin now</p><p className="mt-1 text-lg font-bold tabular-nums">{usd.format(crypto.bitcoin.price)}</p></div>
-            <div className="text-right"><p className="text-[0.62rem] font-bold uppercase text-muted-foreground">24h change</p><p className={crypto.bitcoin.change24h >= 0 ? "mt-1 text-lg font-bold text-positive tabular-nums" : "mt-1 text-lg font-bold text-destructive tabular-nums"}>{crypto.bitcoin.change24h >= 0 ? "+" : ""}{crypto.bitcoin.change24h.toFixed(2)}%</p></div>
+          <div className="mt-6 grid grid-cols-2 gap-4">
+            <div><p className="text-[0.65rem] font-bold uppercase text-muted-foreground">Bitcoin now</p><p className="mt-1 text-xl font-bold tabular-nums">{usd.format(crypto.bitcoin.price)}</p></div>
+            <div className="text-right"><p className="text-[0.65rem] font-bold uppercase text-muted-foreground">24h change</p><p className={crypto.bitcoin.change24h >= 0 ? "mt-1 text-xl font-bold text-positive tabular-nums" : "mt-1 text-xl font-bold text-destructive tabular-nums"}>{crypto.bitcoin.change24h >= 0 ? "+" : ""}{crypto.bitcoin.change24h.toFixed(2)}%</p></div>
           </div>
           <div className="mt-4"><MarketSparkline values={crypto.bitcoinHistory} /></div>
           <div className="mt-2 grid grid-cols-3 gap-2 border-t border-border pt-3 text-[0.66rem]">
@@ -75,7 +78,7 @@ function HomePage() {
             <div className="text-right"><span className="block text-muted-foreground">Market cap</span><strong className="mt-0.5 block tabular-nums">{compactUsd.format(crypto.bitcoin.marketCap)}</strong></div>
           </div>
         </div>
-        <div className="flex flex-col justify-end border-t border-border bg-secondary/35 p-4 md:border-l md:border-t-0 md:p-5">
+        <div className="flex flex-col justify-end border-t border-border bg-secondary/35 p-5 md:border-l md:border-t-0 md:p-6">
           <div className="mb-4 flex items-end justify-between gap-3"><div><p className="text-[0.62rem] font-bold uppercase text-muted-foreground">Target</p><p className="mt-1 text-xl font-black tabular-nums">$120,000</p></div><div className="text-right"><p className="text-[0.62rem] font-bold uppercase text-muted-foreground">Community odds</p><p className="mt-1 text-xl font-black text-chart tabular-nums">{featured.outcomes[0]?.probability}%</p></div></div>
           <div className="grid grid-cols-2 gap-2">
             {featured.outcomes.map((outcome, index) => (
@@ -97,7 +100,7 @@ function HomePage() {
           { name: "Bitcoin", symbol: "BTC", value: crypto.bitcoin.price, change: crypto.bitcoin.change24h },
           { name: "Ethereum", symbol: "ETH", value: crypto.ethereum.price, change: crypto.ethereum.change24h },
           { name: "Solana", symbol: "SOL", value: crypto.solana.price, change: crypto.solana.change24h },
-        ].map((asset) => <div key={asset.symbol} className="rounded-md border border-border bg-card p-3 last:col-span-2 sm:last:col-span-1"><div className="flex items-center justify-between gap-2"><span className="text-xs font-bold">{asset.symbol}</span><span className={asset.change >= 0 ? "text-[0.65rem] font-bold text-positive" : "text-[0.65rem] font-bold text-destructive"}>{asset.change >= 0 ? "+" : ""}{asset.change.toFixed(1)}%</span></div><p className="mt-2 font-[var(--font-display)] text-base font-bold tabular-nums">{usd.format(asset.value)}</p><p className="mt-0.5 text-[0.65rem] text-muted-foreground">{asset.name} · live</p></div>)}
+        ].map((asset) => <div key={asset.symbol} className="rounded-md border border-border bg-card p-4 last:col-span-2 sm:last:col-span-1"><div className="flex items-center justify-between gap-2"><span className="text-sm font-bold">{asset.symbol}</span><span className={asset.change >= 0 ? "text-xs font-bold text-positive" : "text-xs font-bold text-destructive"}>{asset.change >= 0 ? "+" : ""}{asset.change.toFixed(1)}%</span></div><p className="mt-2 font-[var(--font-display)] text-lg font-bold tabular-nums">{usd.format(asset.value)}</p><p className="mt-1 text-xs text-muted-foreground">{asset.name} · live</p></div>)}
       </section>
 
       <MarketSection title={feed} markets={feedMarkets} />

@@ -64,7 +64,7 @@ export function PredictionWalletProvider({ children }: { children: ReactNode }) 
       if (input.amount > current.balance) return current;
       return { ...current, balance: current.balance - input.amount, positions: [position, ...current.positions] };
     });
-    window.setTimeout(() => { entryLock.current = false; }, 500);
+    queueMicrotask(() => { entryLock.current = false; });
     return { ok: true, position };
   }, [wallet.balance]);
 
