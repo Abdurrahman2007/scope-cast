@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search } from "lucide-react";
 import { MarketCard } from "@/components/market-card";
 import { categories, markets } from "@/domain/markets/demo-markets";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { polymarketFeedQueryOptions } from "@/lib/polymarket.functions";
+import { useMemo } from "react";
 
 const sortOptions = ["Trending", "Most active", "Ending soon", "New"] as const;
 type SortOption = (typeof sortOptions)[number];
@@ -25,7 +26,7 @@ export const Route = createFileRoute("/markets/")({
     ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(polymarketFeedQueryOptions),
-  errorComponent: ({ error }) => <div role="alert" className="py-16 text-center"><h1 className="page-title">Markets unavailable</h1><p className="mt-2 text-sm text-muted-foreground">{error.message}</p></div>,
+  errorComponent: ({ error }) => <div role="alert" className="py-16 text-center"><h1 className="page-title">Markets unavailable</h1><p className="mt-2 text-sm text-muted-foreground">{error instanceof Error ? error.message : "Please try again."}</p></div>,
   notFoundComponent: () => <div className="py-16 text-center">No markets found.</div>,
   component: MarketsPage,
 });
@@ -37,17 +38,19 @@ function MarketsPage() {
   const sort = search.sort ?? "Trending";
   const query = search.q ?? "";
   const { data: liveFeed } = useSuspenseQuery(polymarketFeedQueryOptions);
-  const allMarkets = liveFeed.markets.length > 0 ? liveFeed.markets : markets;
-  const filtered = allMarkets.filter((market) => {
-    const categoryMatches = category === "All" || market.category === category;
-    const queryMatches = market.title.toLowerCase().includes(query.toLowerCase());
-    return categoryMatches && queryMatches;
-  }).sort((a, b) => {
-    if (sort === "Most active") return b.participants - a.participants;
-    if (sort === "Ending soon") return a.closesAt.localeCompare(b.closesAt, undefined, { numeric: true });
-    if (sort === "New") return b.id.localeCompare(a.id);
-    return (b.outcomes[0]?.probability ?? 0) - (a.outcomes[0]?.probability ?? 0);
-  });
+  const filtered = useMemo(() => {
+    const allMarkets = liveFeed.markets.length > 0 ? liveFeed.markets : markets;
+    return allMarkets.filter((market) => {
+      const categoryMatches = category === "All" || market.category === category;
+      const queryMatches = market.title.toLowerCase().includes(query.toLowerCase());
+      return categoryMatches && queryMatches;
+    }).sort((a, b) => {
+      if (sort === "Most active") return b.participants - a.participants;
+      if (sort === "Ending soon") return a.closesAt.localeCompare(b.closesAt, undefined, { numeric: true });
+      if (sort === "New") return b.id.localeCompare(a.id);
+      return (b.outcomes[0]?.probability ?? 0) - (a.outcomes[0]?.probability ?? 0);
+    });
+  }, [category, liveFeed.markets, query, sort]);
 
   return (
     <div className="animate-enter">
@@ -65,7 +68,6 @@ function MarketsPage() {
           placeholder="Search markets"
           aria-label="Search markets"
         />
-        <SlidersHorizontal className="size-4 shrink-0 text-muted-foreground" />
       </label>
 
       <div className="scrollbar-none -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">

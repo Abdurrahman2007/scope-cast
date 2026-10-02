@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { Activity, CalendarDays, ChevronRight, Clock3, Flame, Radio, Sparkles, TrendingUp } from "lucide-react";
 import { MarketCard } from "@/components/market-card";
 import { MarketSparkline } from "@/components/market-sparkline";
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/")({
     context.queryClient.ensureQueryData(cryptoMarketQueryOptions),
     context.queryClient.ensureQueryData(polymarketFeedQueryOptions),
   ]),
-  errorComponent: ({ error }) => <div role="alert" className="py-16 text-center"><h1 className="page-title">Markets unavailable</h1><p className="mt-2 text-sm text-muted-foreground">{error.message}</p></div>,
+  errorComponent: ({ error }) => <div role="alert" className="py-16 text-center"><h1 className="page-title">Markets unavailable</h1><p className="mt-2 text-sm text-muted-foreground">{error instanceof Error ? error.message : "Please try again."}</p></div>,
   notFoundComponent: () => <div className="py-16 text-center">No markets found.</div>,
   component: HomePage,
 });
@@ -40,8 +41,10 @@ function HomePage() {
   const { data: polymarket } = useSuspenseQuery(polymarketFeedQueryOptions);
   const featured = markets[0];
   if (!featured) return null;
-  const liveMarkets = polymarket.markets.length > 0 ? polymarket.markets : markets.slice(1);
-  const feedMarkets = feed === "Upcoming" ? liveMarkets.slice().reverse().slice(0, 9) : feed === "New" ? liveMarkets.slice(-9).reverse() : liveMarkets.slice(0, 9);
+  const feedMarkets = useMemo(() => {
+    const liveMarkets = polymarket.markets.length > 0 ? polymarket.markets : markets.slice(1);
+    return feed === "Upcoming" ? liveMarkets.slice().reverse().slice(0, 9) : feed === "New" ? liveMarkets.slice(-9).reverse() : liveMarkets.slice(0, 9);
+  }, [feed, polymarket.markets]);
 
   return (
     <div className="animate-enter">

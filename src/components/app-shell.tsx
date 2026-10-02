@@ -13,7 +13,6 @@ const navItems = [
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { balance } = usePredictionWallet();
   return (
     <div className="min-h-dvh bg-background text-foreground">
       <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-xl">
@@ -39,10 +38,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Button variant="ghost" size="icon" aria-label="Search markets" title="Search markets" asChild>
               <Link to="/markets"><Search /></Link>
             </Button>
-            <Link to="/profile" className="flex items-center gap-2 rounded-full border border-border bg-card px-3 py-2 transition-colors hover:border-primary/40" aria-label={`${balance.toLocaleString()} TAC Points, open profile`}>
-              <span className="size-1.5 rounded-full bg-primary motion-safe:animate-pulse" />
-              <p className="text-xs font-bold tabular-nums">{balance.toLocaleString()} <span className="text-muted-foreground">TAC</span></p>
-            </Link>
+            <BalancePill />
             <Button variant="outline" size="icon" aria-label="Open profile" title="Open profile" asChild>
               <Link to="/profile"><CircleUserRound /></Link>
             </Button>
@@ -55,7 +51,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </main>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-surface-glass px-2 pb-[max(0.6rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-2xl md:hidden"
+        className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-surface-glass px-2 pb-[max(0.6rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-md md:hidden"
         aria-label="Main navigation"
       >
         <div className="mx-auto grid max-w-md grid-cols-4">
@@ -79,5 +75,15 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </nav>
     </div>
+  );
+}
+
+function BalancePill() {
+  const { balance } = usePredictionWallet();
+  return (
+    <Link to="/profile" className="flex items-center gap-2 rounded-full border border-border bg-card px-3 py-2 transition-colors hover:border-primary/40" aria-label={`${balance.toLocaleString()} TAC Points, open profile`}>
+      <span className="size-1.5 rounded-full bg-primary motion-safe:animate-pulse" />
+      <p className="text-xs font-bold tabular-nums">{balance.toLocaleString()} <span className="text-muted-foreground">TAC</span></p>
+    </Link>
   );
 }
