@@ -42,6 +42,8 @@
   --color-chart-label: var(--chart-label);
   --color-chart-label-foreground: var(--chart-label-foreground);
   --color-bitcoin: var(--bitcoin);
+  --color-ethereum: var(--ethereum);
+  --color-solana: var(--solana);
   --color-sport: var(--sport);
   --color-sport-foreground: var(--sport-foreground);
   --color-tech: var(--tech);
@@ -92,6 +94,8 @@
   --chart-label: oklch(0.82 0.018 235);
   --chart-label-foreground: oklch(0.22 0.02 245);
   --bitcoin: oklch(0.72 0.18 57);
+  --ethereum: oklch(0.55 0.16 280);
+  --solana: oklch(0.65 0.18 165);
   --sport: oklch(0.7 0.15 235 / 0.2);
   --sport-foreground: oklch(0.81 0.12 235);
   --tech: oklch(0.72 0.15 305 / 0.2);
