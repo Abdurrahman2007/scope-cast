@@ -103,6 +103,10 @@ function HomePage() {
         ].map((asset) => <div key={asset.symbol} className="rounded-md border border-border bg-card p-4 last:col-span-2 sm:last:col-span-1"><div className="flex items-center justify-between gap-2"><span className="text-sm font-bold">{asset.symbol}</span><span className={asset.change >= 0 ? "text-xs font-bold text-positive" : "text-xs font-bold text-destructive"}>{asset.change >= 0 ? "+" : ""}{asset.change.toFixed(1)}%</span></div><p className="mt-2 font-[var(--font-display)] text-lg font-bold tabular-nums">{usd.format(asset.value)}</p><p className="mt-1 text-xs text-muted-foreground">{asset.name} · live</p></div>)}
       </section>
 
+      <SportsCarousel markets={feedMarkets} />
+
+      <UpDownSection crypto={crypto} />
+
       <MarketSection title={feed} markets={feedMarkets} />
       <p className="mt-3 text-center text-[0.65rem] font-semibold text-muted-foreground">Market odds and volume supplied by {polymarket.source} · refreshed {new Date(polymarket.updatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
 
