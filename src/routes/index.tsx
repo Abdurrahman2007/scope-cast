@@ -119,6 +119,101 @@ function HomePage() {
   );
 }
 
+const multiplier = (probability: number) => `${(100 / Math.max(1, probability)).toFixed(2)}x`;
+
+function SportsCarousel({ markets: allMarkets }: { markets: import("@/domain/markets/types").Market[] }) {
+  const sports = allMarkets.filter((m) => m.category === "Sports" || m.category === "Culture").slice(0, 8);
+  const cards = sports.length > 0 ? sports : allMarkets.slice(0, 6);
+  if (cards.length === 0) return null;
+  return (
+    <section className="mt-7">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+        <h2 className="section-title truncate">Top Sports Markets</h2>
+        <Link to="/markets" search={{ category: "Sports", sort: "Trending", q: "" }} className="inline-flex shrink-0 items-center rounded-full border border-border px-3 py-1.5 text-xs font-bold text-muted-foreground hover:text-foreground">View All <ChevronRight className="size-4" /></Link>
+      </div>
+      <div className="scrollbar-none -mx-4 mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
+        {cards.map((market) => (
+          <Link key={market.id} to="/markets/$marketId" params={{ marketId: market.id }} className="ios-press w-[19rem] shrink-0 snap-start rounded-lg border border-border bg-card p-5 shadow-card">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-sm font-extrabold uppercase text-muted-foreground">{market.category}</span>
+              <span className="text-xs font-semibold text-muted-foreground">{market.closesAt}</span>
+            </div>
+            <h3 className="mt-2 line-clamp-1 text-[0.95rem] font-bold">{market.title}</h3>
+            <div className="mt-3 space-y-2.5">
+              {market.outcomes.slice(0, 2).map((outcome, index) => (
+                <div key={outcome.id} className="flex items-center justify-between gap-2">
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold">{outcome.label}</span>
+                    <span className={index === 0 ? "mt-1 block h-0.5 w-10 rounded-full bg-positive" : "mt-1 block h-0.5 w-10 rounded-full bg-destructive"} />
+                  </span>
+                  <span className="shrink-0 text-sm font-bold tabular-nums text-muted-foreground">{multiplier(outcome.probability)}</span>
+                  <span className="shrink-0 rounded-full bg-secondary px-3 py-1.5 text-sm font-bold tabular-nums">{outcome.probability}%</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 flex items-center justify-between text-xs font-semibold text-muted-foreground">
+              <span>{market.participants.toLocaleString()} predictors</span>
+              <span className="tabular-nums">{market.volume} Vol</span>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function UpDownSection({ crypto }: { crypto: { bitcoin: { price: number; change24h: number }; ethereum: { price: number; change24h: number }; solana: { price: number; change24h: number } } }) {
+  const assets = [
+    { name: "Bitcoin", symbol: "BTC", icon: "₿", iconClass: "bg-bitcoin", change: crypto.bitcoin.change24h },
+    { name: "Ethereum", symbol: "ETH", icon: "Ξ", iconClass: "bg-ethereum", change: crypto.ethereum.change24h },
+    { name: "Solana", symbol: "SOL", icon: "◎", iconClass: "bg-solana", change: crypto.solana.change24h },
+  ];
+  const cryptoMarket = markets.find((m) => m.category === "Crypto") ?? markets[0];
+  return (
+    <section className="mt-7">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+        <h2 className="section-title truncate">Trending Up &amp; Down</h2>
+        <Link to="/markets" search={{ category: "Crypto", sort: "Trending", q: "" }} className="inline-flex shrink-0 items-center rounded-full border border-border px-3 py-1.5 text-xs font-bold text-muted-foreground hover:text-foreground">View More <ChevronRight className="size-4" /></Link>
+      </div>
+      <div className="mt-3 space-y-3">
+        {assets.map((asset) => {
+          const upProb = Math.min(92, Math.max(8, Math.round(50 + asset.change * 3)));
+          const downProb = 100 - upProb;
+          return (
+            <Link key={asset.symbol} to="/markets/$marketId" params={{ marketId: cryptoMarket?.id ?? "btc-120k" }} className="ios-press block rounded-lg border border-border bg-card p-5 shadow-card">
+              <div className="flex items-center justify-between gap-3">
+                <span className="flex min-w-0 items-center gap-2.5">
+                  <span className={`grid size-9 shrink-0 place-items-center rounded-full text-base font-black text-foreground ${asset.iconClass}`}>{asset.icon}</span>
+                  <span className="truncate text-[0.95rem] font-bold">{asset.name} Up or Down - 15 min</span>
+                </span>
+                <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-bold text-positive"><span className="size-1.5 rounded-full bg-positive" /> LIVE</span>
+              </div>
+              <div className="mt-4 space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold">Up</span>
+                    <span className="mt-1 block h-0.5 w-10 rounded-full bg-positive" />
+                  </span>
+                  <span className="shrink-0 text-sm font-bold tabular-nums text-muted-foreground">{multiplier(upProb)}</span>
+                  <span className="shrink-0 rounded-full bg-positive-soft px-3 py-1.5 text-sm font-bold tabular-nums text-positive">{upProb}%</span>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold">Down</span>
+                    <span className="mt-1 block h-0.5 w-10 rounded-full bg-destructive" />
+                  </span>
+                  <span className="shrink-0 text-sm font-bold tabular-nums text-muted-foreground">{multiplier(downProb)}</span>
+                  <span className="shrink-0 rounded-full bg-destructive/10 px-3 py-1.5 text-sm font-bold tabular-nums text-destructive">{downProb}%</span>
+                </div>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function MarketSection({ title, markets: sectionMarkets }: { title: string; markets: import("@/domain/markets/types").Market[] }) {
   return (
     <section className="mt-7">
