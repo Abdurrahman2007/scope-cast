@@ -52,7 +52,7 @@ function HomePage() {
 
       <SportsCarousel markets={feedMarkets} />
 
-      <UpDownSection crypto={crypto} bitcoinHistory={crypto.bitcoinHistory} marketId={featured.id} />
+      <UpDownSection crypto={crypto} bitcoinHistory={crypto.bitcoinHistory} liveMarkets={polymarket.cryptoUpDown} />
 
       <div className="scrollbar-none -mx-4 mt-7 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
         {categories.slice(0, 7).map((category, index) => <Link key={category} to="/markets" search={{ category, sort: "Trending", q: "" }} className={index === 0 ? "filter-chip-active" : "filter-chip"}>{category}</Link>)}
@@ -94,7 +94,7 @@ function SportsCarousel({ markets: allMarkets }: { markets: import("@/domain/mar
                 <div key={outcome.id} className="flex items-center justify-between gap-2">
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-semibold">{outcome.label}</span>
-                    <span className={index === 0 ? "mt-1 block h-0.5 w-10 rounded-full bg-positive" : "mt-1 block h-0.5 w-10 rounded-full bg-destructive"} />
+                    <progress className={index === 0 ? "outcome-progress outcome-progress-positive mt-1" : "outcome-progress outcome-progress-negative mt-1"} value={outcome.probability} max={100} aria-label={`${outcome.label} ${outcome.probability}%`} />
                   </span>
                   <span className="shrink-0 text-sm font-bold tabular-nums text-muted-foreground">{multiplier(outcome.probability)}</span>
                   <span className={index === 0 ? "shrink-0 rounded-full bg-positive-soft px-3 py-1.5 text-sm font-bold tabular-nums text-positive" : "shrink-0 rounded-full bg-destructive/10 px-3 py-1.5 text-sm font-bold tabular-nums text-destructive"}>{outcome.probability}%</span>
@@ -112,25 +112,27 @@ function SportsCarousel({ markets: allMarkets }: { markets: import("@/domain/mar
   );
 }
 
-function UpDownSection({ crypto, bitcoinHistory, marketId }: { crypto: { bitcoin: { price: number; change24h: number }; ethereum: { price: number; change24h: number }; solana: { price: number; change24h: number } }; bitcoinHistory: number[]; marketId: string }) {
+function UpDownSection({ crypto, bitcoinHistory, liveMarkets }: { crypto: { bitcoin: { price: number; change24h: number }; ethereum: { price: number; change24h: number }; solana: { price: number; change24h: number } }; bitcoinHistory: number[]; liveMarkets: import("@/lib/polymarket.functions").PolymarketFeed["cryptoUpDown"] }) {
   const assets = [
-    { name: "Bitcoin", symbol: "BTC", icon: "₿", iconClass: "bg-bitcoin", change: crypto.bitcoin.change24h },
-    { name: "Ethereum", symbol: "ETH", icon: "Ξ", iconClass: "bg-ethereum", change: crypto.ethereum.change24h },
-    { name: "Solana", symbol: "SOL", icon: "◎", iconClass: "bg-solana", change: crypto.solana.change24h },
-  ];
+    { key: "bitcoin" as const, name: "Bitcoin", symbol: "BTC", icon: "₿", iconClass: "bg-bitcoin", price: crypto.bitcoin.price },
+    { key: "ethereum" as const, name: "Ethereum", symbol: "ETH", icon: "Ξ", iconClass: "bg-ethereum", price: crypto.ethereum.price },
+    { key: "solana" as const, name: "Solana", symbol: "SOL", icon: "◎", iconClass: "bg-solana", price: crypto.solana.price },
+  ].filter((asset) => liveMarkets[asset.key]);
   const bitcoin = assets[0];
   if (!bitcoin) return null;
-  const bitcoinUp = Math.min(92, Math.max(8, Math.round(50 + bitcoin.change * 3)));
-  const bitcoinDown = 100 - bitcoinUp;
+  const bitcoinMarket = liveMarkets[bitcoin.key];
+  if (!bitcoinMarket) return null;
+  const bitcoinUp = bitcoinMarket.outcomes[0]?.probability ?? 0;
+  const bitcoinDown = bitcoinMarket.outcomes[1]?.probability ?? 0;
   return (
     <section className="mt-7">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
         <h2 className="section-title truncate">Trending Up &amp; Down</h2>
         <Link to="/markets" search={{ category: "Crypto", sort: "Trending", q: "" }} className="inline-flex shrink-0 items-center rounded-full border border-border px-3 py-1.5 text-xs font-bold text-muted-foreground hover:text-foreground">View More <ChevronRight className="size-4" /></Link>
       </div>
-      <Link to="/markets/$marketId" params={{ marketId }} className="ios-press mt-3 block overflow-hidden rounded-lg border border-border bg-card p-5 shadow-card sm:p-6">
+      <Link to="/markets/$marketId" params={{ marketId: bitcoinMarket.id }} className="ios-press mt-3 block overflow-hidden rounded-lg border border-border bg-card p-5 shadow-card sm:p-6">
         <div className="flex items-center justify-between gap-3">
-          <span className="flex min-w-0 items-center gap-3"><span className="grid size-11 shrink-0 place-items-center rounded-full bg-bitcoin text-xl font-black text-foreground">₿</span><span className="min-w-0"><span className="block truncate text-lg font-extrabold">Bitcoin Up or Down</span><span className="mt-0.5 block text-xs font-semibold text-muted-foreground">Live 24h momentum · {usd.format(crypto.bitcoin.price)}</span></span></span>
+          <span className="flex min-w-0 items-center gap-3"><span className="grid size-11 shrink-0 place-items-center rounded-full bg-bitcoin text-xl font-black text-foreground">₿</span><span className="min-w-0"><span className="block truncate text-lg font-extrabold">Bitcoin Up or Down</span><span className="mt-0.5 block text-xs font-semibold text-muted-foreground">Polymarket odds · {usd.format(crypto.bitcoin.price)}</span></span></span>
           <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-bold text-positive"><span className="size-1.5 rounded-full bg-positive" /> LIVE</span>
         </div>
         <div className="mt-5 h-24"><MarketSparkline values={bitcoinHistory} /></div>
@@ -140,15 +142,17 @@ function UpDownSection({ crypto, bitcoinHistory, marketId }: { crypto: { bitcoin
         </div>
       </Link>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
-        {assets.slice(1).map((asset) => {
-          const upProb = Math.min(92, Math.max(8, Math.round(50 + asset.change * 3)));
-          const downProb = 100 - upProb;
+        {assets.filter((asset) => asset.key !== "bitcoin").map((asset) => {
+          const market = liveMarkets[asset.key];
+          if (!market) return null;
+          const upProb = market.outcomes[0]?.probability ?? 0;
+          const downProb = market.outcomes[1]?.probability ?? 0;
           return (
-            <Link key={asset.symbol} to="/markets/$marketId" params={{ marketId }} className="ios-press block rounded-lg border border-border bg-card p-5 shadow-card">
+            <Link key={asset.symbol} to="/markets/$marketId" params={{ marketId: market.id }} className="ios-press block rounded-lg border border-border bg-card p-5 shadow-card">
               <div className="flex items-center justify-between gap-3">
                 <span className="flex min-w-0 items-center gap-2.5">
                   <span className={`grid size-9 shrink-0 place-items-center rounded-full text-base font-black text-foreground ${asset.iconClass}`}>{asset.icon}</span>
-                  <span className="min-w-0"><span className="block truncate text-[0.95rem] font-bold">{asset.name} Up or Down</span><span className="mt-0.5 block text-xs font-semibold text-muted-foreground">{usd.format(asset.symbol === "ETH" ? crypto.ethereum.price : crypto.solana.price)} · 24h signal</span></span>
+                  <span className="min-w-0"><span className="block truncate text-[0.95rem] font-bold">{asset.name} Up or Down</span><span className="mt-0.5 block text-xs font-semibold text-muted-foreground">{usd.format(asset.price)} · Polymarket odds</span></span>
                 </span>
                 <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-bold text-positive"><span className="size-1.5 rounded-full bg-positive" /> LIVE</span>
               </div>
@@ -156,7 +160,7 @@ function UpDownSection({ crypto, bitcoinHistory, marketId }: { crypto: { bitcoin
                 <div className="flex items-center justify-between gap-2">
                   <span className="min-w-0">
                     <span className="block text-sm font-semibold">Up</span>
-                    <span className="mt-1 block h-0.5 w-10 rounded-full bg-positive" />
+                    <progress className="outcome-progress outcome-progress-positive mt-1" value={upProb} max={100} aria-label={`Up ${upProb}%`} />
                   </span>
                   <span className="shrink-0 text-sm font-bold tabular-nums text-muted-foreground">{multiplier(upProb)}</span>
                   <span className="shrink-0 rounded-full bg-positive-soft px-3 py-1.5 text-sm font-bold tabular-nums text-positive">{upProb}%</span>
@@ -164,7 +168,7 @@ function UpDownSection({ crypto, bitcoinHistory, marketId }: { crypto: { bitcoin
                 <div className="flex items-center justify-between gap-2">
                   <span className="min-w-0">
                     <span className="block text-sm font-semibold">Down</span>
-                    <span className="mt-1 block h-0.5 w-10 rounded-full bg-destructive" />
+                    <progress className="outcome-progress outcome-progress-negative mt-1" value={downProb} max={100} aria-label={`Down ${downProb}%`} />
                   </span>
                   <span className="shrink-0 text-sm font-bold tabular-nums text-muted-foreground">{multiplier(downProb)}</span>
                   <span className="shrink-0 rounded-full bg-destructive/10 px-3 py-1.5 text-sm font-bold tabular-nums text-destructive">{downProb}%</span>

@@ -20,6 +20,7 @@ type GammaMarket = {
 
 export type PolymarketFeed = {
   markets: Market[];
+  cryptoUpDown: Partial<Record<"bitcoin" | "ethereum" | "solana", Market>>;
   updatedAt: string;
   source: "Polymarket";
   error?: string;
@@ -74,11 +75,17 @@ function mapMarket(item: GammaMarket): Market | null {
   if (!title || !id) return null;
   const labels = parseList(item.outcomes);
   const prices = parseList(item.outcomePrices);
-  const outcomes: MarketOutcome[] = labels.map((label, index) => ({
-    id: `${id}-${index}`,
-    label,
-    probability: Math.max(0, Math.min(100, Math.round(Number(prices[index] ?? 0) * 100))),
-  }));
+  const rawProbabilities = labels.map((_, index) => Math.max(0, Number(prices[index] ?? 0))).map((value) => Number.isFinite(value) ? value : 0);
+  const probabilityTotal = rawProbabilities.reduce((sum, value) => sum + value, 0);
+  let assignedProbability = 0;
+  const outcomes: MarketOutcome[] = labels.map((label, index) => {
+    const isLast = index === labels.length - 1;
+    const probability = isLast
+      ? Math.max(0, 100 - assignedProbability)
+      : Math.max(0, Math.min(100, Math.round((rawProbabilities[index] ?? 0) / Math.max(probabilityTotal, 1) * 100)));
+    assignedProbability += probability;
+    return { id: `${id}-${index}`, label, probability };
+  });
   if (outcomes.length < 2) return null;
   const volume = Number(item.volume ?? 0);
   const sourceUrl = item.slug ? `https://polymarket.com/event/${item.slug}` : "https://polymarket.com/markets";
@@ -101,15 +108,27 @@ function mapMarket(item: GammaMarket): Market | null {
 
 async function fetchFeed(): Promise<PolymarketFeed> {
   try {
-    const response = await fetch("https://gamma-api.polymarket.com/markets?active=true&closed=false&limit=36&order=volume24hr&ascending=false", {
-      headers: { accept: "application/json" },
-    });
-    if (!response.ok) throw new Error(`Market feed returned ${response.status}`);
-    const payload = (await response.json()) as GammaMarket[];
-    return { markets: payload.map(mapMarket).filter((market): market is Market => market !== null), updatedAt: new Date().toISOString(), source: "Polymarket" };
+    const headers = { accept: "application/json" };
+    const now = new Date().toISOString();
+    const [feedResponse, cryptoResponse] = await Promise.all([
+      fetch("https://gamma-api.polymarket.com/markets?active=true&closed=false&limit=36&order=volume24hr&ascending=false", { headers }),
+      fetch(`https://gamma-api.polymarket.com/markets?active=true&closed=false&limit=100&end_date_min=${encodeURIComponent(now)}&order=endDate&ascending=true`, { headers }),
+    ]);
+    if (!feedResponse.ok) throw new Error(`Market feed returned ${feedResponse.status}`);
+    const payload = (await feedResponse.json()) as GammaMarket[];
+    const cryptoPayload = cryptoResponse.ok ? (await cryptoResponse.json()) as GammaMarket[] : [];
+    const mappedCrypto = cryptoPayload.map(mapMarket).filter((market): market is Market => market !== null);
+    const cryptoUpDown: PolymarketFeed["cryptoUpDown"] = {};
+    for (const market of mappedCrypto) {
+      const title = market.title.toLowerCase();
+      const asset = title.startsWith("bitcoin up or down") ? "bitcoin" : title.startsWith("ethereum up or down") ? "ethereum" : title.startsWith("solana up or down") ? "solana" : undefined;
+      if (asset && !cryptoUpDown[asset]) cryptoUpDown[asset] = market;
+      if (cryptoUpDown.bitcoin && cryptoUpDown.ethereum && cryptoUpDown.solana) break;
+    }
+    return { markets: payload.map(mapMarket).filter((market): market is Market => market !== null), cryptoUpDown, updatedAt: now, source: "Polymarket" };
   } catch (error) {
     console.error("Polymarket feed unavailable", error);
-    return { markets: [], updatedAt: new Date().toISOString(), source: "Polymarket", error: "Live markets are temporarily unavailable." };
+    return { markets: [], cryptoUpDown: {}, updatedAt: new Date().toISOString(), source: "Polymarket", error: "Live markets are temporarily unavailable." };
   }
 }
 

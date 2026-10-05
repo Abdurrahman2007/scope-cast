@@ -29,7 +29,7 @@ export const MarketCard = memo(function MarketCard({ market }: { market: Market 
             search={{ outcome: outcome.id }}
             className={cn("grid min-h-12 grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 rounded-md border px-3.5 text-[0.93rem] font-bold transition-all duration-150 active:scale-[0.98]", index === 0 ? "border-positive/20 bg-positive-soft text-positive hover:border-positive/40" : index === 1 ? "border-destructive/20 bg-destructive/10 text-destructive hover:border-destructive/40" : "border-border bg-secondary text-secondary-foreground hover:border-foreground/20")}
           >
-            <span className="min-w-0"><span className="block truncate">{outcome.label}</span><span className={cn("mt-1 block h-0.5 w-12 rounded-full", index === 0 ? "bg-positive" : index === 1 ? "bg-destructive" : "bg-chart")} /></span>
+            <span className="min-w-0"><span className="block truncate">{outcome.label}</span><progress className={cn("outcome-progress mt-1", index === 0 ? "outcome-progress-positive" : index === 1 ? "outcome-progress-negative" : "outcome-progress-chart")} value={outcome.probability} max={100} aria-label={`${outcome.label} ${outcome.probability}%`} /></span>
             <span className="text-xs tabular-nums opacity-75">{(100 / Math.max(1, outcome.probability)).toFixed(2)}x</span>
             <span className="rounded-full bg-background/35 px-2.5 py-1 tabular-nums">{outcome.probability}%</span>
           </Link>
