@@ -85,7 +85,7 @@ function SportsCarousel({ markets: allMarkets }: { markets: import("@/domain/mar
         {cards.map((market) => (
           <Link key={market.id} to="/markets/$marketId" params={{ marketId: market.id }} className="ios-press w-[19rem] shrink-0 snap-start rounded-lg border border-border bg-card p-5 shadow-card">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-sm font-extrabold uppercase text-muted-foreground">{market.category}</span>
+              <span className="inline-flex items-center gap-2 text-sm font-extrabold uppercase text-muted-foreground"><MarketIcon market={market} className="size-8" />{market.category}</span>
               <span className="text-xs font-semibold text-muted-foreground">{market.closesAt}</span>
             </div>
             <h3 className="mt-2 line-clamp-1 text-[0.95rem] font-bold">{market.title}</h3>

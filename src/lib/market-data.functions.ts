@@ -36,15 +36,26 @@ function numeric(value: number | undefined, fallback = 0) {
 
 async function fetchCryptoMarketSnapshot(): Promise<CryptoMarketSnapshot> {
   const apiKey = process.env["COINGECKO_API_KEY"];
-  if (!apiKey) throw new Error("CoinGecko is not configured");
-
-  const headers = { accept: "application/json", "x-cg-demo-api-key": apiKey };
+  const headers = apiKey ? { accept: "application/json", "x-cg-demo-api-key": apiKey } : { accept: "application/json" };
+  const request = (url: string) => fetch(url, { headers }).then(async (response) => {
+    if (response.ok || !apiKey) return response;
+    return fetch(url, { headers: { accept: "application/json" } });
+  });
   const [priceResponse, chartResponse] = await Promise.all([
-    fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd&include_market_cap=true&include_24hr_change=true", { headers }),
-    fetch("https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1", { headers }),
+    request("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd&include_market_cap=true&include_24hr_change=true"),
+    request("https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1"),
   ]);
 
-  if (!priceResponse.ok) throw new Error(`CoinGecko price request failed (${priceResponse.status})`);
+  if (!priceResponse.ok) {
+    console.error(`CoinGecko price request unavailable [${priceResponse.status}]`);
+    return {
+      bitcoin: { price: 0, change24h: 0, high24h: 0, low24h: 0, marketCap: 0 },
+      ethereum: { price: 0, change24h: 0 },
+      solana: { price: 0, change24h: 0 },
+      bitcoinHistory: [],
+      updatedAt: new Date().toISOString(),
+    };
+  }
 
   const prices = (await priceResponse.json()) as CoinGeckoPriceResponse;
   const chart = chartResponse.ok ? (await chartResponse.json()) as CoinGeckoChartResponse : {};

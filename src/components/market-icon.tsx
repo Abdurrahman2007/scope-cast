@@ -1,4 +1,4 @@
-import { Bot, Landmark, Newspaper, Trophy } from "lucide-react";
+import { Bot, Clapperboard, Landmark, Newspaper, Shapes, Trophy } from "lucide-react";
 import type { Market } from "@/domain/markets/types";
 import { cn } from "@/lib/utils";
 
@@ -13,5 +13,7 @@ export function MarketIcon({ market, className }: { market: Market; className?: 
   if (market.category === "Sports") return <span className={cn("market-icon bg-sport text-sport-foreground", className)} aria-label="Sports"><Trophy /></span>;
   if (market.category === "Technology") return <span className={cn("market-icon bg-tech text-tech-foreground", className)} aria-label="Technology"><Bot /></span>;
   if (market.category === "News") return <span className={cn("market-icon bg-news text-news-foreground", className)} aria-label="News"><Newspaper /></span>;
-  return <span className={cn("market-icon bg-business text-business-foreground", className)} aria-label={market.category}><Landmark /></span>;
+  if (market.category === "Culture") return <span className={cn("market-icon bg-tech text-tech-foreground", className)} aria-label="Culture"><Clapperboard /></span>;
+  if (market.category === "Business") return <span className={cn("market-icon bg-business text-business-foreground", className)} aria-label="Business"><Landmark /></span>;
+  return <span className={cn("market-icon bg-category text-category-foreground", className)} aria-label={market.category}><Shapes /></span>;
 }
