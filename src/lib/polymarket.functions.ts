@@ -75,11 +75,17 @@ function mapMarket(item: GammaMarket): Market | null {
   if (!title || !id) return null;
   const labels = parseList(item.outcomes);
   const prices = parseList(item.outcomePrices);
-  const outcomes: MarketOutcome[] = labels.map((label, index) => ({
-    id: `${id}-${index}`,
-    label,
-    probability: Math.max(0, Math.min(100, Math.round(Number(prices[index] ?? 0) * 100))),
-  }));
+  const rawProbabilities = labels.map((_, index) => Math.max(0, Number(prices[index] ?? 0))).map((value) => Number.isFinite(value) ? value : 0);
+  const probabilityTotal = rawProbabilities.reduce((sum, value) => sum + value, 0);
+  let assignedProbability = 0;
+  const outcomes: MarketOutcome[] = labels.map((label, index) => {
+    const isLast = index === labels.length - 1;
+    const probability = isLast
+      ? Math.max(0, 100 - assignedProbability)
+      : Math.max(0, Math.min(100, Math.round((rawProbabilities[index] ?? 0) / Math.max(probabilityTotal, 1) * 100)));
+    assignedProbability += probability;
+    return { id: `${id}-${index}`, label, probability };
+  });
   if (outcomes.length < 2) return null;
   const volume = Number(item.volume ?? 0);
   const sourceUrl = item.slug ? `https://polymarket.com/event/${item.slug}` : "https://polymarket.com/markets";
