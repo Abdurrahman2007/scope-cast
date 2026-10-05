@@ -31,7 +31,7 @@ function MarketDetailPage() {
   const { marketId } = Route.useParams();
   const { outcome: initialOutcome } = Route.useSearch();
   const { data: liveFeed } = useSuspenseQuery(polymarketFeedQueryOptions);
-  const market = useMemo(() => [...liveFeed.markets, ...markets].find((item) => item.id === marketId), [liveFeed.markets, marketId]);
+  const market = useMemo(() => [...liveFeed.markets, ...Object.values(liveFeed.cryptoUpDown), ...markets].find((item) => item?.id === marketId), [liveFeed.markets, liveFeed.cryptoUpDown, marketId]);
   const [selectedOutcome, setSelectedOutcome] = useState(initialOutcome || market?.outcomes[0]?.id || "");
   const [amount, setAmount] = useState(100);
   const [message, setMessage] = useState("");

@@ -132,6 +132,13 @@
   .bg-featured-overlay { background: var(--featured-overlay); }
   .market-icon { @apply grid size-13 shrink-0 place-items-center rounded-full text-xl shadow-sm sm:size-14; }
   .market-icon svg { @apply size-[1.35rem]; }
+  .outcome-progress { @apply block h-0.5 w-full overflow-hidden rounded-full border-0 bg-secondary; appearance: none; }
+  .outcome-progress::-webkit-progress-bar { background: var(--color-secondary); border-radius: 999px; }
+  .outcome-progress::-webkit-progress-value { background: var(--progress-color); border-radius: 999px; transition: width 180ms cubic-bezier(0.22, 1, 0.36, 1); }
+  .outcome-progress::-moz-progress-bar { background: var(--progress-color); border-radius: 999px; }
+  .outcome-progress-positive { --progress-color: var(--color-positive); }
+  .outcome-progress-negative { --progress-color: var(--color-destructive); }
+  .outcome-progress-chart { --progress-color: var(--color-chart); }
 }
 
 @utility scrollbar-none {

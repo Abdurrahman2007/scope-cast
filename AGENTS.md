@@ -15,5 +15,6 @@
 - Market data contracts live under `src/domain/markets` because all categories and binary or multi-outcome markets share one category-independent model.
 - External market-price credentials and requests must stay behind server functions because provider keys cannot ship to browsers.
 - CoinGecko market snapshots use a shared server cache and request deduplication because live cards must not create duplicate provider calls.
+- Polymarket discovery and crypto Up/Down odds use one shared cached server feed because displayed probabilities must come from the provider rather than price-change estimates.
 - The visible product uses the compact World Graphite design system with Space Grotesk headings and DM Sans body text because mobile market scanning is the primary interaction.
 - Prediction wallet state is accessed through one shared provider because balance and positions must remain consistent across shell, market, rewards, and profile screens.
