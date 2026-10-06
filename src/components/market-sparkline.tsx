@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { memo, useId } from "react";
 
-export const MarketSparkline = memo(function MarketSparkline({ compact = false, values }: { compact?: boolean; values?: number[] }) {
+export const MarketSparkline = memo(function MarketSparkline({ compact = false, values }: { compact?: boolean; values?: number[] | undefined }) {
   const gradientId = useId().replaceAll(":", "");
   const width = 320;
   const height = 112;

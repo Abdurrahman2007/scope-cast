@@ -151,3 +151,14 @@ export const polymarketFeedQueryOptions = queryOptions({
   retry: 1,
   refetchOnWindowFocus: false,
 });
+/** Server-only: fetch one market directly from the provider and confirm it is still open. */
+export async function loadOpenProviderMarket(marketId: string): Promise<Market | null> {
+  const raw = marketId.replace(/^poly-/, "");
+  if (!/^\d+$/.test(raw)) return null;
+  const response = await fetch(`https://gamma-api.polymarket.com/markets/${raw}`, { headers: { accept: "application/json" } });
+  if (!response.ok) return null;
+  const item = (await response.json()) as GammaMarket;
+  if (item.closed || item.active === false) return null;
+  if (item.endDate && new Date(item.endDate).getTime() <= Date.now()) return null;
+  return mapMarket(item);
+}
