@@ -17,7 +17,7 @@ export const Route = createFileRoute("/rewards")({
 });
 
 function RewardsPage() {
-  const { balance, claimedDailyReward, claimDailyReward } = usePredictionWallet();
+  const { user, balance, streak, claimedDailyReward, claimDailyReward } = usePredictionWallet();
   const [status, setStatus] = useState("");
   return <div className="animate-enter max-w-2xl">
     <p className="section-kicker">Your progress</p><h1 className="page-title">Rewards</h1>
@@ -26,7 +26,7 @@ function RewardsPage() {
       <p className="mt-6 text-sm font-medium text-muted-foreground">Use points to make predictions and earn rewards.</p>
     </section>
     <section className="mt-6"><div className="flex items-center justify-between"><h2 className="section-title">Daily check-in</h2><span className="inline-flex items-center gap-1 text-sm font-bold text-streak"><Flame className="size-4" /> 4 days</span></div>
-      <div className="mt-3 flex items-center justify-between rounded-lg border border-border bg-card p-4"><div><p className="font-bold">Today’s reward</p><p className="text-sm text-muted-foreground">+100 TAC Points</p></div><Button disabled={claimedDailyReward} onClick={() => { const claimed = claimDailyReward(); setStatus(claimed ? "100 TAC added to your balance." : "Today’s reward is already claimed."); }}><Sparkles /> {claimedDailyReward ? "Claimed" : "Claim"}</Button></div>
+      <div className="mt-3 flex items-center justify-between rounded-lg border border-border bg-card p-4"><div><p className="font-bold">Today’s reward</p><p className="text-sm text-muted-foreground">+100 TAC · streak {streak} day{streak === 1 ? "" : "s"}</p></div><Button disabled={claimedDailyReward} onClick={async () => { if (!user) { setStatus("Sign in to claim rewards."); return; } const r = await claimDailyReward(); setStatus(r.message ?? ""); }}><Sparkles /> {claimedDailyReward ? "Claimed" : "Claim"}</Button></div>
       {status && <p role="status" className="mt-3 text-sm font-semibold text-positive">{status}</p>}
     </section>
     <Button variant="outline" className="mt-6 h-12 w-full" asChild><Link to="/profile">View prediction activity</Link></Button>

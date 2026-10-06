@@ -81,13 +81,14 @@ function MarketDetailPage() {
         <label className="mt-5 block text-xs font-bold text-muted-foreground">PREDICTION AMOUNT</label>
         <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center rounded-md border border-input bg-background px-3 focus-within:ring-2 focus-within:ring-ring/30"><input value={amount} min={10} max={balance} step={10} onChange={(event) => { setAmount(Math.max(0, Number(event.target.value))); setMessage(""); }} type="number" className="h-12 min-w-0 bg-transparent text-lg font-bold outline-none" /><span className="shrink-0 text-xs font-bold text-muted-foreground">TAC Points</span></div>
         <div className="mt-3 grid grid-cols-4 gap-2">{[100, 500, 1000].map((value) => <Button key={value} variant="secondary" size="sm" onClick={() => { setAmount(Math.min(value, balance)); setMessage(""); }}>{value.toLocaleString()}</Button>)}<Button variant="secondary" size="sm" onClick={() => { setAmount(balance); setMessage(""); }}>Max</Button></div>
-        <Button className="mt-5 h-13 w-full text-base" disabled={!selectedOutcome || amount < 10 || amount > balance || submitting} onClick={() => {
+        {!user ? <Button className="mt-5 h-13 w-full text-base" asChild><Link to="/auth">Sign in to predict</Link></Button> :
+        <Button className="mt-5 h-13 w-full text-base" disabled={!selectedOutcome || amount < 10 || amount > balance || submitting} onClick={async () => {
           if (!chosen || submitting) return;
           setSubmitting(true);
-          const result = enterMarket({ marketId: market.id, marketTitle: market.title, outcomeId: chosen.id, outcomeLabel: chosen.label, amount, potentialReturn: potential });
+          const result = await enterMarket({ marketId: market.id, outcomeId: chosen.id, amount });
           setMessage(result.ok ? `${amount.toLocaleString()} TAC entered on ${chosen.label}.` : result.message);
           setSubmitting(false);
-        }}>{message.includes("entered") ? <><Check /> Entry placed</> : `Enter ${chosen?.label ?? ""}`}</Button>
+        }}>{submitting ? "Confirming…" : message.includes("entered") ? <><Check /> Entry placed</> : `Confirm ${chosen?.label ?? ""}`}</Button>}
         {message && <p role="status" className={cn("mt-3 text-center text-xs font-semibold", message.includes("entered") ? "text-positive" : "text-destructive")}>{message}</p>}
         <p className="mt-3 flex items-center justify-center gap-1 text-[0.68rem] text-muted-foreground"><ShieldCheck className="size-3.5" /> TAC is deducted immediately after confirmation</p>
       </section>
